@@ -1,20 +1,5 @@
 {
-  "aiProvider": "gemini",
-  "maxTokens": 4000,
-  "reportFormat": "markdown",
-  "scan": {
-    "ignore": ["node_modules", ".git", "dist", "build"],
-    "include": ["src", "lib"]
-  },
-  "auth": {
-    "token": ""
-  },
-  "team": {
-    "org": "",
-    "project": ""
-  },
-  "plugins": [],
   "analytics": {
-    "enabled": true
+    "usage": {}
   }
-} 
+}
