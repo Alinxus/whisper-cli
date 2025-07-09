@@ -15,6 +15,10 @@ import { AuthManager } from '../lib/auth/auth.js';
 import { ConfigManager } from '../lib/config/config.js';
 import { Analytics } from '../lib/analytics/analytics.js';
 
+// Load environment variables from .env if present
+import dotenv from 'dotenv';
+dotenv.config();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -36,11 +40,11 @@ const banner = figlet.textSync('WHISPER', {
 });
 
 console.log(gradient.pastel.multiline(banner));
-console.log(chalk.cyan.bold('  AI-Powered Code Intelligence CLI\n'));
+console.log(chalk.cyan.bold('  AI-Powered Code Security Intelligence CLI\n'));
 
 program
   .name('whisper')
-  .description('AI-powered code intelligence CLI for developers, teams, and security analysts')
+  .description('AI-powered code security intelligence CLI for developers, teams, and security analysts')
   .version(packageJson.version, '-v, --version')
   .option('-d, --debug', 'Enable debug mode', false)
   .option('--no-color', 'Disable colored output', false)
