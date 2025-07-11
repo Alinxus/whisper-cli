@@ -49,7 +49,8 @@ program
   .option('-d, --debug', 'Enable debug mode', false)
   .option('--no-color', 'Disable colored output', false)
   .hook('preAction', async (thisCommand) => {
-    const options = thisCommand.opts();
+const options = thisCommand.opts();
+    console.log('🌐 Connecting to Whisper CLI...');
     
     // Initialize Whisper CLI
     const whisper = new WhisperCLI(options);
@@ -73,7 +74,7 @@ process.on('uncaughtException', (error) => {
 // Scan command
 program
   .command('scan')
-  .description('Scan code for security issues, bugs, and improvements')
+  .description('🔒 Scan code for vulnerabilities and improvements')
   .argument('[path]', 'Path to scan (default: current directory)', '.')
   .option('-a, --ai', 'Enable AI-powered analysis', true)
   .option('-f, --format <format>', 'Output format (markdown, html, json, csv)', 'markdown')
@@ -290,6 +291,60 @@ program
         }
       })
   );
+
+// Explain command
+program
+  .command('explain')
+  .description('🧠 Explain code securely with AI analysis')
+  .argument('<file>', 'File path to explain')
+  .option('-l, --line <line>', 'Specific line number to explain')
+  .option('-f, --function <function>', 'Function name to explain')
+  .option('--security', 'Focus on security aspects', false)
+  .option('--model <model>', 'AI model to use', 'gemini')
+  .action(async (file, options) => {
+    try {
+      const whisper = global.whisper;
+      await whisper.explainCode(file, options);
+    } catch (error) {
+      console.error(chalk.red('Explain failed:'), error.message);
+      process.exit(1);
+    }
+  });
+
+// Fix command
+program
+  .command('fix')
+  .description('🔧 Get AI-powered fix suggestions (non-destructive)')
+  .argument('[path]', 'Path to analyze for fixes (default: current directory)', '.')
+  .option('--interactive', 'Interactive mode for applying fixes', false)
+  .option('--severity <level>', 'Minimum severity level (low, medium, high, critical)', 'medium')
+  .option('--model <model>', 'AI model to use', 'gemini')
+  .action(async (path, options) => {
+    try {
+      const whisper = global.whisper;
+      await whisper.suggestFixes(path, options);
+    } catch (error) {
+      console.error(chalk.red('Fix suggestions failed:'), error.message);
+      process.exit(1);
+    }
+  });
+
+// Guard command
+program
+  .command('guard')
+  .description('🛡️ Git pre-commit security guard')
+  .option('--install', 'Install pre-commit hook', false)
+  .option('--uninstall', 'Uninstall pre-commit hook', false)
+  .option('--severity <level>', 'Block commits with issues above this level', 'medium')
+  .action(async (options) => {
+    try {
+      const whisper = global.whisper;
+      await whisper.guard(options);
+    } catch (error) {
+      console.error(chalk.red('Guard failed:'), error.message);
+      process.exit(1);
+    }
+  });
 
 // Chat mode (AI terminal agent)
 program
