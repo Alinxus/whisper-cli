@@ -1,7 +1,7 @@
 {
-  "name": "whisper-cli",
-  "version": "1.0.0",
-  "description": "AI-powered code intelligence CLI for developers, teams, and security analysts",
+  "name": "whisper-ai",
+  "version": "1.1.0",
+  "description": "AI-powered code intelligence CLI for code security, analysis, and review",
   "main": "lib/index.js",
   "type": "module",
   "bin": {
@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "echo 'No build step required for Node.js CLI'",
+    "build": "tsc",
     "publish": "npm publish",
     "docs": "jsdoc -c jsdoc.json"
   },
@@ -41,6 +41,7 @@
     "array-flatten": "latest",
     "ascii-art": "^2.8.5",
     "axios": "latest",
+    "bcrypt": "latest",
     "bcryptjs": "latest",
     "boxen": "latest",
     "bytes": "latest",
@@ -86,6 +87,7 @@
     "mime": "latest",
     "mime-types": "latest",
     "multipart": "latest",
+    "nanoid": "latest",
     "nanospinner": "latest",
     "negotiator": "latest",
     "node-cron": "latest",
@@ -95,6 +97,10 @@
     "openai": "latest",
     "ora": "latest",
     "parseurl": "latest",
+    "passport": "latest",
+    "passport-jwt": "latest",
+    "passport-local": "latest",
+    "@prisma/client": "latest",
     "path-exists": "latest",
     "path-to-regexp": "latest",
     "progress": "latest",
@@ -131,6 +137,7 @@
     "jsdoc": "latest",
     "nodemon": "latest",
     "prettier": "latest",
+    "prisma": "latest",
     "typescript": "latest"
   },
   "engines": {

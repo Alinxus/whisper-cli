@@ -1,12 +1,15 @@
 # Whisper CLI
 
-## Environment Setup
+## Authentication Setup
 
-To enable AI features, create a `.env` file in the project root with your API keys:
+The Whisper CLI uses backend-managed AI providers for enhanced security analysis. You only need to authenticate with your Whisper account:
 
+```bash
+# Login to your Whisper account
+whisper auth login
+
+# Check authentication status
+whisper auth status
 ```
-GEMINI_API_KEY=your-gemini-api-key-here
-OPENAI_API_KEY=your-openai-api-key-here (optional)
-```
 
-The CLI will automatically load these keys at startup. 
+All AI provider keys are managed securely on the backend - no local API keys required.

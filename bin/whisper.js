@@ -67,6 +67,21 @@ program
     const whisper = new WhisperCLI(options);
     await whisper.initialize();
     
+    // Check for authentication (skip for auth commands)
+    const args = process.argv.slice(2);
+    const isAuthCommand = args.includes('auth');
+    
+    if (!isAuthCommand) {
+      const isAuthenticated = await whisper.auth.check();
+      if (!isAuthenticated) {
+        console.error(chalk.red('❌ Not authenticated. Please run `whisper auth login` and try again.'));
+        process.exit(1);
+      }
+      
+      // Check for rate limiting
+      await whisper.checkRateLimits();
+    }
+    
     // Set global whisper instance
     global.whisper = whisper;
   });

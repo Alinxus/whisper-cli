@@ -1,0 +1,217 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  password    String
+  firstName   String?
+  lastName    String?
+  role        Role     @default(MEMBER)
+  isActive    Boolean  @default(true)
+  isVerified  Boolean  @default(false)
+  apiKey      String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastLoginAt DateTime?
+
+  // Relations
+  projects      Project[]
+  scans         Scan[]
+  subscription  Subscription?
+  organizations OrganizationMember[]
+
+  @@map("users")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members      OrganizationMember[]
+  projects     Project[]
+  subscription Subscription?
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  role           Role     @default(MEMBER)
+  joinedAt       DateTime @default(now())
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@map("organization_members")
+}
+
+model Project {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  repositoryUrl  String?
+  branch         String   @default("main")
+  isActive       Boolean  @default(true)
+  ownerId        String
+  organizationId String?
+  config         Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  scans        Scan[]
+
+  @@map("projects")
+}
+
+model Scan {
+  id          String     @id @default(cuid())
+  projectId   String
+  userId      String
+  status      ScanStatus @default(PENDING)
+  branch      String     @default("main")
+  commit      String?
+  diffHash    String?
+  totalFiles  Int        @default(0)
+  issuesFound Int        @default(0)
+  startedAt   DateTime   @default(now())
+  completedAt DateTime?
+  metadata    Json?
+
+  // Relations
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  findings Finding[]
+
+  @@map("scans")
+}
+
+model Finding {
+  id          String   @id @default(cuid())
+  scanId      String
+  file        String
+  line        Int?
+  column      Int?
+  type        String
+  severity    Severity
+  message     String
+  description String?
+  fix         String?
+  confidence  Float    @default(0.5)
+  code        String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  scan Scan @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@map("findings")
+}
+
+model Subscription {
+  id             String            @id @default(cuid())
+  userId         String?           @unique
+  organizationId String?           @unique
+  plan           SubscriptionPlan  @default(FREE)
+  status         SubscriptionStatus @default(ACTIVE)
+  
+  // Lemon Squeezy integration
+  lemonSqueezyId String?           @unique
+  variantId      String?
+  customerId     String?
+  orderId        String?
+  productId      String?
+  
+  // Billing details
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAt           DateTime?
+  canceledAt         DateTime?
+  
+  // Usage tracking
+  scansUsed          Int              @default(0)
+  scansLimit         Int              @default(10)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  userId    String
+  isActive  Boolean  @default(true)
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("api_keys")
+}
+
+// Enums
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum ScanStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum Severity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  TEAM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+  PAST_DUE
+}
