@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import chalk from 'chalk';
-import figlet from 'figlet';
+import terminalKit from 'terminal-kit';
+import boxen from 'boxen';
+import ora from 'ora';
+import Table from 'cli-table3';
 import gradient from 'gradient-string';
+import figlet from 'figlet';
+import chalk from 'chalk';
 import updateNotifier from 'update-notifier';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -49,7 +53,14 @@ program
   .option('-d, --debug', 'Enable debug mode', false)
   .option('--no-color', 'Disable colored output', false)
   .hook('preAction', async (thisCommand) => {
-const options = thisCommand.opts();
+    const options = thisCommand.opts();
+    
+    const loading = ora({
+       text: 'Initializing Whisper CLI...'
+    }).start();
+
+    await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate loading
+    loading.succeed('Ready to roll!');
     console.log('🌐 Connecting to Whisper CLI...');
     
     // Initialize Whisper CLI
