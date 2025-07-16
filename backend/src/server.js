@@ -37,7 +37,7 @@ const fastify = Fastify({
 // Plugin registration function
 const registerPlugins = async () => {
   await fastify.register(cors, {
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5000'],
     credentials: true
   });
 
@@ -65,7 +65,7 @@ const registerPlugins = async () => {
       },
       servers: [
         {
-          url: 'http://localhost:3000',
+          url: 'http://localhost:5000',
           description: 'Development server'
         }
       ],
@@ -211,8 +211,8 @@ const start = async () => {
     await registerPlugins();
     await registerRoutes();
     
-    const port = process.env.PORT || 3000;
-    const host = process.env.HOST || '0.0.0.0';
+    const port = process.env.PORT || 5000;
+    const host = process.env.HOST || 'localhost';
     
     await fastify.listen({ port, host });
     fastify.log.info(`🚀 Whisper Backend API listening at http://${host}:${port}`);
