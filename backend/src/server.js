@@ -6,7 +6,7 @@ import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
+import pkg from '@prisma/client';
 import authRoutes from './routes/auth.js';
 import organizationRoutes from './routes/organizations.js';
 import scanRoutes from './routes/scans.js';
@@ -14,6 +14,8 @@ import projectRoutes from './routes/projects.js';
 import { checkScanLimit, checkFeatureAccess, checkRepositoryLimits } from './middleware/rateLimiter.js';
 import { simulateAIService } from './services/aiService.js';
 import billingRoutes from './routes/billing.js';
+
+const { PrismaClient } = pkg;
 
 // Load environment variables
 dotenv.config();
