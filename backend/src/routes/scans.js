@@ -28,22 +28,33 @@ const scanRoutes = async (fastify, options) => {
           },
           metadata: { type: 'object' },
           branch: { type: 'string' },
-          commit: { type: 'string' }
+          commit: { type: 'string' },
+          organizationId: { type: 'string' }
         }
       }
     }
   }, async (request, reply) => {
     const { userId } = request.user;
-    const { projectPath, totalFiles, issuesFound, findings, metadata, branch, commit } = request.body;
+    const { projectPath, totalFiles, issuesFound, findings, metadata, branch, commit, organizationId } = request.body;
 
     try {
       // Create or find project
-      let project = await prisma.project.findFirst({
-        where: {
-          ownerId: userId,
-          repositoryUrl: projectPath
-        }
-      });
+      let project;
+      if (organizationId) {
+        project = await prisma.project.findFirst({
+          where: {
+            organizationId,
+            repositoryUrl: projectPath
+          }
+        });
+      } else {
+        project = await prisma.project.findFirst({
+          where: {
+            ownerId: userId,
+            repositoryUrl: projectPath
+          }
+        });
+      }
 
       if (!project) {
         project = await prisma.project.create({
@@ -51,7 +62,8 @@ const scanRoutes = async (fastify, options) => {
             name: projectPath.split('/').pop() || 'Unnamed Project',
             repositoryUrl: projectPath,
             ownerId: userId,
-            branch: branch || 'main'
+            branch: branch || 'main',
+            ...(organizationId ? { organizationId } : {})
           }
         });
       }
@@ -141,13 +153,24 @@ const scanRoutes = async (fastify, options) => {
     }
   });
 
-  // Get user's scans
+  // Get user's scans or all scans for an organization
   fastify.get('/', async (request, reply) => {
     const { userId } = request.user;
-    const { page = 1, limit = 20, severity } = request.query;
+    const { page = 1, limit = 20, severity, organizationId } = request.query;
 
     try {
-      const where = { userId };
+      let where;
+      if (organizationId) {
+        // Get all project IDs for the organization
+        const projects = await prisma.project.findMany({
+          where: { organizationId },
+          select: { id: true }
+        });
+        const projectIds = projects.map(p => p.id);
+        where = { projectId: { in: projectIds } };
+      } else {
+        where = { userId };
+      }
       
       const scans = await prisma.scan.findMany({
         where,

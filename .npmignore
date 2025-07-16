@@ -7,7 +7,7 @@ tests/
 # Environment files
 .env
 .env.*
-!.env.example
+.env.example
 
 # Development files
 pnpm-lock.yaml

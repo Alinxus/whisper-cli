@@ -337,7 +337,7 @@ const dashboardRoutes = async (fastify, options) => {
         }
       });
 
-      // Get team projects
+      // Get all project IDs for the organization
       const projects = await prisma.project.findMany({
         where: { organizationId },
         include: {
@@ -353,13 +353,12 @@ const dashboardRoutes = async (fastify, options) => {
           }
         }
       });
+      const projectIds = projects.map(p => p.id);
 
       // Get team scan statistics
       const totalScans = await prisma.scan.count({
         where: {
-          project: {
-            organizationId
-          }
+          projectId: { in: projectIds }
         }
       });
 
@@ -367,9 +366,7 @@ const dashboardRoutes = async (fastify, options) => {
       const memberActivity = await prisma.scan.groupBy({
         by: ['userId'],
         where: {
-          project: {
-            organizationId
-          }
+          projectId: { in: projectIds }
         },
         _count: true,
         _sum: {
@@ -380,9 +377,7 @@ const dashboardRoutes = async (fastify, options) => {
       // Get recent team activity
       const recentActivity = await prisma.scan.findMany({
         where: {
-          project: {
-            organizationId
-          }
+          projectId: { in: projectIds }
         },
         include: {
           user: {

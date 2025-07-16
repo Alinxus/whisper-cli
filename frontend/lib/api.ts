@@ -270,6 +270,7 @@ export interface ScanRequest {
     timestamp: string;
     version: string;
   };
+  organizationId?: string;
 }
 
 export interface AuthResponse {
@@ -473,10 +474,11 @@ export const projectsApi = {
 
 // Scans API
 export const scansApi = {
-  async getScans(projectId?: string): Promise<Scan[]> {
-    const response = await api.get('/scans', {
-      params: projectId ? { projectId } : {},
-    });
+  async getScans(projectId?: string, organizationId?: string): Promise<Scan[]> {
+    const params: any = {};
+    if (projectId) params.projectId = projectId;
+    if (organizationId) params.organizationId = organizationId;
+    const response = await api.get('/scans', { params });
     return response.data;
   },
 
@@ -627,6 +629,7 @@ export const billingApi = {
   async createCheckout(data: {
     planId: string;
     interval?: 'month' | 'year';
+    organizationId?: string;
   }): Promise<{ success: boolean; checkoutUrl?: string; message?: string }> {
     const response = await api.post('/billing/checkout', data);
     return response.data;

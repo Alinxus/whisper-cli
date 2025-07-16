@@ -30,9 +30,9 @@ const billingRoutes = async (fastify, options) => {
         {
           id: 'pro',
           name: 'Pro',
-          price: 20,
+          price: 15,
           interval: 'month',
-          annual_price: 200,
+          annual_price: 150,
           features: [
             '300 scans per month',
             'AI-powered code fixes',
@@ -52,10 +52,10 @@ const billingRoutes = async (fastify, options) => {
         },
         {
           id: 'team',
-          name: 'Team',
-          price: 50,
-          interval: 'month',
-          annual_price: 500,
+          name: 'TEAM',
+          price: 25,
+          interval: '/user/month',
+          annual_price: 220,
           features: [
             '1,000 scans per month (shared)',
             'All Pro features',
@@ -108,7 +108,7 @@ const billingRoutes = async (fastify, options) => {
   // Create checkout session
   fastify.post('/checkout', async (request, reply) => {
     const { userId } = request.user;
-    const { planId, interval = 'month' } = request.body;
+    const { planId, interval = 'month', organizationId } = request.body;
 
     try {
       if (planId === 'free') {
@@ -147,9 +147,25 @@ const billingRoutes = async (fastify, options) => {
         where: { id: userId }
       });
 
-      // Create Lemon Squeezy checkout
-      const variantId = process.env[`LEMON_SQUEEZY_${planId.toUpperCase()}_${interval.toUpperCase()}_VARIANT_ID`];
-      
+      let variantId = process.env[`LEMON_SQUEEZY_${planId.toUpperCase()}_${interval.toUpperCase()}_VARIANT_ID`];
+      let quantity = 1;
+      let custom = { user_id: userId };
+
+      if (planId === 'team') {
+        if (!organizationId) {
+          return reply.code(400).send({ error: 'organizationId is required for team plan' });
+        }
+        // Count team members
+        const memberCount = await prisma.organizationMember.count({
+          where: { organizationId }
+        });
+        if (memberCount < 1) {
+          return reply.code(400).send({ error: 'No members found in organization' });
+        }
+        quantity = memberCount;
+        custom.organization_id = organizationId;
+      }
+
       if (!variantId) {
         return reply.code(400).send({
           error: 'Invalid plan configuration'
@@ -163,9 +179,8 @@ const billingRoutes = async (fastify, options) => {
             checkout_data: {
               email: user.email,
               name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-              custom: {
-                user_id: userId
-              }
+              custom,
+              ...(planId === 'team' ? { quantity } : {})
             }
           },
           relationships: {
