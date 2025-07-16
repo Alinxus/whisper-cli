@@ -323,7 +323,7 @@ export const authApi = {
   },
 
   async getMe(): Promise<User> {
-    const response = await api.get('/me');
+    const response = await api.get('/auth/me');
     return response.data.user;
   },
 

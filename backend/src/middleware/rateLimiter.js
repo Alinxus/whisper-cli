@@ -4,22 +4,22 @@ const PLAN_LIMITS = {
   FREE: {
     scansPerMonth: 10,
     maxRepos: 1,
-    maxFilesPerRepo: 2500,
+    maxFilesPerRepo: 5000,
     aiFixesEnabled: false,
     teamFeaturesEnabled: false,
     cicdEnabled: false
   },
   PRO: {
-    scansPerMonth: 1000,
-    maxRepos: 10,
+    scansPerMonth: 300,
+    maxRepos: 20,
     maxFilesPerRepo: 50000,
     aiFixesEnabled: true,
     teamFeaturesEnabled: false,
     cicdEnabled: false
   },
   TEAM: {
-    scansPerMonth: 100000,
-    maxRepos: 25,
+    scansPerMonth: 1000,
+    maxRepos: 50,
     maxFilesPerRepo: 100000,
     aiFixesEnabled: true,
     teamFeaturesEnabled: true,

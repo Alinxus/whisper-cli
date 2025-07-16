@@ -1,0 +1,25 @@
+# Development directories
+backend/
+frontend/
+node_modules/
+tests/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Development files
+pnpm-lock.yaml
+package-lock.json
+.gitignore
+
+# Documentation that's not needed in the package
+SETUP.md
+
+# Other common files to exclude
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

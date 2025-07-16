@@ -15,7 +15,7 @@ const billingRoutes = async (fastify, options) => {
           features: [
             '10 scans per month',
             '1 repository',
-            'Up to 2,500 files per repo',
+            'Up to 5,000 files per repo',
             'Basic security scanning',
             'Markdown/HTML reports'
           ],
@@ -36,16 +36,16 @@ const billingRoutes = async (fastify, options) => {
           features: [
             '300 scans per month',
             'AI-powered code fixes',
-            'Up to 3 private repos',
-            '10,000 files per repo',
+            'Up to 20 private repos',
+            '50,000 files per repo',
             'CLI Auth Guard',
             'Team config sync',
             'Priority email support'
           ],
           limits: {
             scansPerMonth: 300,
-            maxRepos: 3,
-            maxFilesPerRepo: 10000,
+            maxRepos: 20,
+            maxFilesPerRepo: 50000,
             aiFixesEnabled: true,
             teamFeaturesEnabled: false
           }
@@ -57,19 +57,19 @@ const billingRoutes = async (fastify, options) => {
           interval: 'month',
           annual_price: 500,
           features: [
-            '3,000 scans per month (shared)',
+            '1,000 scans per month (shared)',
             'All Pro features',
             'Shared team dashboard',
             'CI/CD integration',
-            'Up to 10 repos',
-            '20,000 files per repo',
+            'Up to 50 repos',
+            '100,000 files per repo',
             'Usage analytics',
             'Priority support'
           ],
           limits: {
             scansPerMonth: 3000,
-            maxRepos: 10,
-            maxFilesPerRepo: 20000,
+            maxRepos: 50,
+            maxFilesPerRepo: 100000,
             aiFixesEnabled: true,
             teamFeaturesEnabled: true
           }

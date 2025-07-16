@@ -13,6 +13,7 @@ import scanRoutes from './routes/scans.js';
 import projectRoutes from './routes/projects.js';
 import { checkScanLimit, checkFeatureAccess, checkRepositoryLimits } from './middleware/rateLimiter.js';
 import { simulateAIService } from './services/aiService.js';
+import billingRoutes from './routes/billing.js';
 
 // Load environment variables
 dotenv.config();
@@ -348,6 +349,9 @@ const registerRoutes = async () => {
     
     // Project routes
     fastify.register(projectRoutes, { prefix: '/api/v1/projects' });
+
+    //Billing Routes
+    fastify.register(billingRoutes, { prefix: '/api/v1/billing' });
     
     // More protected routes will be added later
     // fastify.register(userRoutes, { prefix: '/api/v1/users' });

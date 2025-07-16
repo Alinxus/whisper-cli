@@ -145,10 +145,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/whisper-cli/whisper.git"
+    "url": "https://github.com/Alinxus/whisper-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/whisper-cli/whisper/issues"
+    "url": "https://github.com/Alinxus/whisper-cli/issues"
   },
   "homepage": "https://whisper-cli.dev",
   "preferGlobal": true,
