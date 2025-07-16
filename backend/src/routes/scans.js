@@ -190,8 +190,8 @@ const scanRoutes = async (fastify, options) => {
     }
   });
 
-  // Get scan statistics
-  fastify.get('/stats/overview', async (request, reply) => {
+  // Get scan statistics (main endpoint)
+  const getStatsHandler = async (request, reply) => {
     const { userId } = request.user;
 
     try {
@@ -235,7 +235,11 @@ const scanRoutes = async (fastify, options) => {
         error: 'Failed to retrieve statistics'
       });
     }
-  });
+  };
+
+  // Register both endpoints with same handler
+  fastify.get('/stats/overview', getStatsHandler);
+  fastify.get('/stats', getStatsHandler);
 
 };
 

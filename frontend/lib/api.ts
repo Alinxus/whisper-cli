@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -309,12 +309,12 @@ export interface DeviceTokenResponse {
 // Auth API
 export const authApi = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await api.post('/login', credentials);
+    const response = await api.post('/auth/login', credentials);
     return response.data;
   },
 
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    const response = await api.post('/register', credentials);
+    const response = await api.post('/auth/register', credentials);
     return response.data;
   },
 
@@ -434,7 +434,7 @@ export const organizationsApi = {
 export const projectsApi = {
   async getProjects(): Promise<Project[]> {
     const response = await api.get('/projects');
-    return response.data;
+    return response.data.projects || response.data;
   },
 
   async getProject(id: string): Promise<Project> {
@@ -514,6 +514,29 @@ export const scansApi = {
   },
 };
 
+// AI Types
+export interface AIUsage {
+  id: string;
+  model: string;
+  prompt: string;
+  tokensUsed: number;
+  cost: number;
+  createdAt: string;
+}
+
+export interface AIUsageStats {
+  period: string;
+  totalRequests: number;
+  totalTokens: number;
+  totalCost: number;
+  modelBreakdown: {
+    model: string;
+    requests: number;
+    tokens: number;
+    cost: number;
+  }[];
+}
+
 // AI API
 export const aiApi = {
   async queryAI(data: {
@@ -524,6 +547,28 @@ export const aiApi = {
     systemPrompt?: string;
   }): Promise<{ response: string }> {
     const response = await api.post('/ai/query', data);
+    return response.data;
+  },
+
+  async getAIData(page: number = 1, limit: number = 20): Promise<{
+    data: AIUsage[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  }> {
+    const response = await api.get('/ai/data', {
+      params: { page, limit }
+    });
+    return response.data;
+  },
+
+  async getAIUsage(period: 'day' | 'week' | 'month' | 'year' = 'month'): Promise<AIUsageStats> {
+    const response = await api.get('/ai/usage', {
+      params: { period }
+    });
     return response.data;
   },
 };

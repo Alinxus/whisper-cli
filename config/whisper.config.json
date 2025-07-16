@@ -1,4 +1,41 @@
 {
+  "auth": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYzc3ZGNlZS1kOTg3LTQ4OGQtODIwZC1iN2EyYjVmNTlkM2EiLCJlbWFpbCI6Im9sYWppZGVhbGFtZWVuNEBnbWFpbC5jb20iLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzUyNjc5Mjk0fQ.R91wCo0b9Y7w3Ha43oHm-6CO994UKpcIEvIoWb8fX8Q",
+    "user": {
+      "id": "3c77dcee-d987-488d-820d-b7a2b5f59d3a",
+      "email": "olajidealameen4@gmail.com",
+      "username": "alameenpd",
+      "firstName": "Al-ameen",
+      "lastName": "Olajide",
+      "role": "MEMBER",
+      "isActive": true,
+      "isVerified": false,
+      "apiKey": "wsk_DVuEU5EA059NoguDFQSW6nMTy3FyGhrK",
+      "createdAt": "2025-07-16T14:44:22.269Z",
+      "updatedAt": "2025-07-16T14:54:18.938Z",
+      "lastLoginAt": "2025-07-16T14:54:18.927Z",
+      "subscription": {
+        "id": "cmd62o524000137wt0upakmdn",
+        "userId": "3c77dcee-d987-488d-820d-b7a2b5f59d3a",
+        "organizationId": null,
+        "plan": "FREE",
+        "status": "ACTIVE",
+        "lemonSqueezyId": null,
+        "variantId": null,
+        "customerId": null,
+        "orderId": null,
+        "productId": null,
+        "currentPeriodStart": null,
+        "currentPeriodEnd": null,
+        "cancelAt": null,
+        "canceledAt": null,
+        "scansUsed": 0,
+        "scansLimit": 10,
+        "createdAt": "2025-07-16T14:44:23.035Z",
+        "updatedAt": "2025-07-16T14:44:23.035Z"
+      }
+    }
+  },
   "analytics": {
     "usage": {}
   }

@@ -251,6 +251,23 @@ program
       })
   );
 
+// History command
+program
+  .command('history')
+  .description('View chat and scan history')
+  .option('--chat', 'Show chat history')
+  .option('--scans', 'Show scan history')
+  .option('--clear', 'Clear history')
+  .action(async (options) => {
+    try {
+      const whisper = global.whisper;
+      await whisper.showHistory(options);
+    } catch (error) {
+      console.error(chalk.red('History failed:'), error.message);
+      process.exit(1);
+    }
+  });
+
 // Config commands
 program
   .command('config')

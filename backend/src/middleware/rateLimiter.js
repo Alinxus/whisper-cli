@@ -10,17 +10,17 @@ const PLAN_LIMITS = {
     cicdEnabled: false
   },
   PRO: {
-    scansPerMonth: 300,
-    maxRepos: 3,
-    maxFilesPerRepo: 10000,
+    scansPerMonth: 1000,
+    maxRepos: 10,
+    maxFilesPerRepo: 50000,
     aiFixesEnabled: true,
     teamFeaturesEnabled: false,
     cicdEnabled: false
   },
   TEAM: {
-    scansPerMonth: 3000,
-    maxRepos: 10,
-    maxFilesPerRepo: 20000,
+    scansPerMonth: 100000,
+    maxRepos: 25,
+    maxFilesPerRepo: 100000,
     aiFixesEnabled: true,
     teamFeaturesEnabled: true,
     cicdEnabled: true
@@ -37,7 +37,7 @@ const PLAN_LIMITS = {
 
 const FEATURE_MATRIX = {
   FREE: {
-    'GPT-Powered Code Fixes': false,
+    'AI-Powered Code Fixes': false,
     'AI Documentation': false,
     'Heuristic Scans': true,
     'Markdown/HTML Reports': true,
@@ -49,7 +49,7 @@ const FEATURE_MATRIX = {
     'Priority Support': false
   },
   PRO: {
-    'GPT-Powered Code Fixes': true,
+    'AI-Powered Code Fixes': true,
     'AI Documentation': true,
     'Heuristic Scans': true,
     'Markdown/HTML Reports': true,

@@ -167,11 +167,14 @@ export default function ScansPage() {
   const [selectedStatus, setSelectedStatus] = useState('');
   const queryClient = useQueryClient();
 
-  const { data: scans = [], isLoading } = useQuery({
+  const { data: scansData = [], isLoading } = useQuery({
     queryKey: ['scans'],
     queryFn: scansApi.getScans,
     refetchInterval: 5000, // Refresh every 5 seconds for running scans
   });
+
+  // Ensure scans is always an array
+  const scans = Array.isArray(scansData) ? scansData : [];
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -201,8 +204,8 @@ export default function ScansPage() {
   };
 
   const filteredScans = scans.filter((scan) => {
-    const matchesSearch = scan.project?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         scan.branch.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = scan.project?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         scan.branch?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesProject = !selectedProject || scan.projectId === selectedProject;
     const matchesStatus = !selectedStatus || scan.status === selectedStatus;
     return matchesSearch && matchesProject && matchesStatus;

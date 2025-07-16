@@ -30,6 +30,7 @@ model User {
   scans         Scan[]
   subscription  Subscription?
   organizations OrganizationMember[]
+  aiUsage       AiUsage[]
 
   @@map("users")
 }
@@ -176,6 +177,21 @@ model ApiKey {
   updatedAt DateTime @updatedAt
 
   @@map("api_keys")
+}
+
+model AiUsage {
+  id         String   @id @default(cuid())
+  userId     String
+  model      String
+  prompt     String
+  tokensUsed Int      @default(0)
+  cost       Float    @default(0.0)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_usage")
 }
 
 // Enums

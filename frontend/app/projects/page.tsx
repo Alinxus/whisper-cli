@@ -186,8 +186,11 @@ export default function ProjectsPage() {
     }
   };
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  // Ensure projects is always an array
+  const projectsArray = Array.isArray(projects) ? projects : [];
+  
+  const filteredProjects = projectsArray.filter((project) => {
+    const matchesSearch = project.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          project.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesOrg = !selectedOrg || project.organizationId === selectedOrg;
     return matchesSearch && matchesOrg;

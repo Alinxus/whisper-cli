@@ -10,6 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.js';
 import organizationRoutes from './routes/organizations.js';
 import scanRoutes from './routes/scans.js';
+import projectRoutes from './routes/projects.js';
 import { checkScanLimit, checkFeatureAccess, checkRepositoryLimits } from './middleware/rateLimiter.js';
 import { simulateAIService } from './services/aiService.js';
 
@@ -131,14 +132,200 @@ const registerRoutes = async () => {
   // AI query route
   fastify.post('/api/v1/ai/query', { preHandler: fastify.authenticate }, async (request, reply) => {
     const { model, prompt, temperature, maxTokens, systemPrompt } = request.body;
-    const apiKey = request.user.apiKey; // Retrieve user's API key if needed
+    const { userId } = request.user;
 
     try {
-      // Simulate calling an AI service
-      const aiResponse = await simulateAIService({ model, prompt, temperature, maxTokens, apiKey, systemPrompt });
-      reply.send({ response: aiResponse });
+      // Create AI service instance
+      const aiService = new (await import('./services/aiService.js')).AIService();
+      const availableModels = aiService.getAvailableModels();
+
+      // Check if the requested model is available
+      if (!aiService.isModelAvailable(model)) {
+        // Try to find a suitable alternative from the same provider
+        let alternativeModel = null;
+        if (model.startsWith('gpt-') && availableModels.some(m => m.startsWith('gpt-'))) {
+          alternativeModel = availableModels.find(m => m.startsWith('gpt-')) || 'gpt-4o';
+        } else if (model.startsWith('claude-') && availableModels.some(m => m.startsWith('claude-'))) {
+          alternativeModel = availableModels.find(m => m.startsWith('claude-')) || 'claude-3.5-sonnet-20241022';
+        } else if (model.startsWith('gemini-') && availableModels.some(m => m.startsWith('gemini-'))) {
+          alternativeModel = availableModels.find(m => m.startsWith('gemini-')) || 'gemini-2.5-pro';
+        } else if (availableModels.length > 0) {
+          // Default to the first available model
+          alternativeModel = availableModels[0];
+        }
+
+        if (!alternativeModel) {
+          return reply.code(400).send({
+            error: 'No AI models available',
+            message: 'No AI API keys configured. Please add API keys to your .env file.',
+            availableModels: []
+          });
+        }
+
+        // Use the alternative model
+        const actualModel = alternativeModel;
+        const aiResponse = await aiService.query({
+          model: actualModel,
+          prompt,
+          temperature,
+          maxTokens,
+          systemPrompt
+        });
+
+        // Log AI usage
+        await prisma.aiUsage.create({
+          data: {
+            userId,
+            model: actualModel,
+            prompt: prompt.substring(0, 500),
+            tokensUsed: maxTokens || 1000,
+            cost: 0.01
+          }
+        });
+
+        reply.send({
+          response: aiResponse,
+          modelUsed: actualModel,
+          requestedModel: model
+        });
+      } else {
+        // Use the requested model
+        const aiResponse = await aiService.query({
+          model,
+          prompt,
+          temperature,
+          maxTokens,
+          systemPrompt
+        });
+
+        // Log AI usage
+        await prisma.aiUsage.create({
+          data: {
+            userId,
+            model,
+            prompt: prompt.substring(0, 500),
+            tokensUsed: maxTokens || 1000,
+            cost: 0.01
+          }
+        });
+
+        reply.send({ response: aiResponse });
+      }
     } catch (err) {
       reply.code(500).send({ error: 'AI processing failed', message: err.message });
+    }
+  });
+
+  // AI data endpoint
+  fastify.get('/api/v1/ai/data', { preHandler: fastify.authenticate }, async (request, reply) => {
+    const { userId } = request.user;
+    const { page = 1, limit = 20 } = request.query;
+
+    try {
+      const aiData = await prisma.aiUsage.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: parseInt(limit),
+        select: {
+          id: true,
+          model: true,
+          prompt: true,
+          tokensUsed: true,
+          cost: true,
+          createdAt: true
+        }
+      });
+
+      const total = await prisma.aiUsage.count({ where: { userId } });
+
+      reply.send({
+        data: aiData,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
+    } catch (err) {
+      reply.code(500).send({ error: 'Failed to fetch AI data', message: err.message });
+    }
+  });
+
+  // AI usage statistics endpoint
+  fastify.get('/api/v1/ai/usage', { preHandler: fastify.authenticate }, async (request, reply) => {
+    const { userId } = request.user;
+    const { period = 'month' } = request.query;
+
+    try {
+      let startDate;
+      const now = new Date();
+      
+      switch (period) {
+        case 'day':
+          startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          break;
+        case 'week':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case 'year':
+          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+
+      const usage = await prisma.aiUsage.aggregate({
+        where: {
+          userId,
+          createdAt: {
+            gte: startDate
+          }
+        },
+        _sum: {
+          tokensUsed: true,
+          cost: true
+        },
+        _count: {
+          id: true
+        }
+      });
+
+      const modelUsage = await prisma.aiUsage.groupBy({
+        by: ['model'],
+        where: {
+          userId,
+          createdAt: {
+            gte: startDate
+          }
+        },
+        _sum: {
+          tokensUsed: true,
+          cost: true
+        },
+        _count: {
+          id: true
+        }
+      });
+
+      reply.send({
+        period,
+        totalRequests: usage._count.id || 0,
+        totalTokens: usage._sum.tokensUsed || 0,
+        totalCost: usage._sum.cost || 0,
+        modelBreakdown: modelUsage.map(item => ({
+          model: item.model,
+          requests: item._count.id,
+          tokens: item._sum.tokensUsed,
+          cost: item._sum.cost
+        }))
+      });
+    } catch (err) {
+      reply.code(500).send({ error: 'Failed to fetch AI usage', message: err.message });
     }
   });
 
@@ -159,9 +346,11 @@ const registerRoutes = async () => {
     // Scan routes
     fastify.register(scanRoutes, { prefix: '/api/v1/scans' });
     
+    // Project routes
+    fastify.register(projectRoutes, { prefix: '/api/v1/projects' });
+    
     // More protected routes will be added later
     // fastify.register(userRoutes, { prefix: '/api/v1/users' });
-    // fastify.register(projectRoutes, { prefix: '/api/v1/projects' });
     // fastify.register(billingRoutes, { prefix: '/api/v1/billing' });
   });
 };
