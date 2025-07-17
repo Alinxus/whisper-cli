@@ -1,222 +1,198 @@
 import Link from "next/link";
+import { useState, useEffect } from "react";
+
+const features = [
+  { title: "AI-Powered Scanning", desc: "Detect vulnerabilities and code smells instantly with state-of-the-art AI models.", icon: "🤖" },
+  { title: "Instant Fix Suggestions", desc: "Get actionable, AI-generated fixes for every issue found.", icon: "⚡" },
+  { title: "Explain Code & Risks", desc: "Let Whisper explain complex code and security risks in plain English.", icon: "💡" },
+  { title: "Team Collaboration", desc: "Share results, manage projects, and collaborate securely.", icon: "👥" },
+  { title: "Seamless CI/CD Integration", desc: "Automate security in your pipeline with a single command.", icon: "🔗" },
+  { title: "Plugin Support", desc: "Extend Whisper with plugins for custom rules and workflows.", icon: "🧩" },
+];
+
+const howItWorks = [
+  { step: 1, title: "Install", desc: "npm install -g whisper-ai", code: "npm install -g whisper-ai" },
+  { step: 2, title: "Scan", desc: "Run a scan in any project directory.", code: "whisper scan ." },
+  { step: 3, title: "Review & Fix", desc: "Get instant, actionable results and AI-powered fixes.", code: "whisper fix ." },
+  { step: 4, title: "Collaborate", desc: "Share results with your team or integrate into CI/CD.", code: "whisper team sync" },
+];
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1200);
+      }}
+      className="ml-2 px-3 py-1 bg-gray-900 text-white rounded hover:bg-gray-800 text-sm border border-gray-700"
+    >
+      {copied ? "Copied!" : "Copy"}
+    </button>
+  );
+}
+
+// Animated CLI demo lines
+const cliLines = [
+  { text: "$ whisper scan .", color: "text-green-400" },
+  { text: "✔️  Scanning your project...", color: "text-gray-300" },
+  { text: "⚠️  2 vulnerabilities found", color: "text-yellow-400" },
+  { text: "💡  Try whisper fix . for instant AI-powered fixes", color: "text-blue-400" },
+];
+
+function AnimatedTerminal() {
+  const [line, setLine] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setLine((l) => (l + 1) % (cliLines.length + 2)), 1200);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="relative bg-black/80 rounded-lg p-4 border border-gray-700 text-left font-mono text-base max-w-xl mx-auto min-h-[120px] overflow-hidden shadow-xl">
+      {/* SVG terminal top bar */}
+      <svg width="100%" height="24" className="absolute left-0 top-0" style={{zIndex:2}}>
+        <rect x="0" y="0" width="100%" height="24" rx="8" fill="#18181b" />
+        <circle cx="20" cy="12" r="5" fill="#ef4444" />
+        <circle cx="40" cy="12" r="5" fill="#f59e42" />
+        <circle cx="60" cy="12" r="5" fill="#22c55e" />
+      </svg>
+      <div className="pt-7 space-y-1 relative z-10">
+        {cliLines.map((l, i) => (
+          <div key={i} className={l.color + (line >= i ? " animate-fade-in" : " opacity-0")}>{l.text}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// SVG background pattern
+function BgPattern() {
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" aria-hidden="true">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#312e81" strokeWidth="1" />
+        </pattern>
+        <radialGradient id="fade" cx="50%" cy="50%" r="80%">
+          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="#0f172a" stopOpacity="0.0" />
+        </radialGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)" />
+      <rect width="100%" height="100%" fill="url(#fade)" />
+    </svg>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <nav className="border-b border-white/10 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
-              <span className="text-xl font-bold">SecureAI</span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="#features" className="text-gray-300 hover:text-white transition-colors">
-                Features
-              </Link>
-              <Link href="#pricing" className="text-gray-300 hover:text-white transition-colors">
-                Pricing
-              </Link>
-              <Link href="#about" className="text-gray-300 hover:text-white transition-colors">
-                About
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/signin" className="text-gray-300 hover:text-white transition-colors">
-                Sign In
-              </Link>
-              <Link href="/auth/signup" className="btn-primary">
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-transparent"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-          <div className="text-center">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-8">
-              <span className="text-purple-300 text-sm font-medium">AI-Powered Security Analysis</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              Secure Your Code with
-              <span className="gradient-text block">Advanced AI</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Identify vulnerabilities, analyze threats, and strengthen your applications with our cutting-edge AI security platform.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/auth/signup" className="btn-primary text-lg px-8 py-4">
-                Start Free Trial
-              </Link>
-              <Link href="#demo" className="btn-secondary text-lg px-8 py-4">
-                Watch Demo
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Powerful Security Features</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Everything you need to secure your applications and protect your users
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="card hover-lift">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
-                <div className="w-6 h-6 bg-purple-400 rounded"></div>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Vulnerability Detection</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Automatically scan your codebase for security vulnerabilities and get actionable insights to fix them.
-              </p>
-            </div>
-            <div className="card hover-lift">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
-                <div className="w-6 h-6 bg-purple-400 rounded"></div>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Real-time Monitoring</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Monitor your applications continuously and receive instant alerts when threats are detected.
-              </p>
-            </div>
-            <div className="card hover-lift">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
-                <div className="w-6 h-6 bg-purple-400 rounded"></div>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">AI-Powered Analysis</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Leverage machine learning to identify complex security patterns and predict potential threats.
-              </p>
-            </div>
-            <div className="card hover-lift">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
-                <div className="w-6 h-6 bg-purple-400 rounded"></div>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Compliance Reports</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Generate comprehensive compliance reports for industry standards and regulations.
-              </p>
-            </div>
-            <div className="card hover-lift">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
-                <div className="w-6 h-6 bg-purple-400 rounded"></div>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Team Collaboration</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Work together with your team to resolve security issues and share insights across projects.
-              </p>
-            </div>
-            <div className="card hover-lift">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
-                <div className="w-6 h-6 bg-purple-400 rounded"></div>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Integration Ready</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Seamlessly integrate with your existing development workflow and CI/CD pipelines.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-24 bg-gradient-to-r from-purple-900/10 to-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">10M+</div>
-              <div className="text-gray-300 text-lg">Lines of Code Analyzed</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">50K+</div>
-              <div className="text-gray-300 text-lg">Vulnerabilities Detected</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">99.9%</div>
-              <div className="text-gray-300 text-lg">Uptime Guarantee</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Secure Your Applications?</h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of developers who trust our AI-powered security platform to protect their code.
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] text-white flex flex-col relative overflow-x-hidden">
+      <BgPattern />
+      {/* Hero */}
+      <section className="pt-20 pb-16 px-4 md:px-0 flex flex-col items-center text-center relative z-10">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in">
+            Whisper: The AI Security Cop for Your Code
+          </h1>
+          <p className="text-lg md:text-2xl text-gray-200 mb-8 animate-fade-in delay-100">
+            Whisper is an open-source CLI that scans, explains, and fixes vulnerabilities in your code—powered by the latest AI models.<br />
+            <span className="text-indigo-300 font-semibold">Install in seconds. Secure your code forever.</span>
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/signup" className="btn-primary text-lg px-8 py-4">
-              Start Free Trial
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 animate-fade-in delay-200">
+            <div className="flex items-center bg-gray-800 rounded px-4 py-2 text-lg font-mono border border-gray-700">
+              <span>npm install -g whisper-ai</span>
+              <CopyButton text="npm install -g whisper-ai" />
+            </div>
+            <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded shadow mt-2 sm:mt-0">
+              Get Started Free
             </Link>
-            <Link href="#contact" className="btn-secondary text-lg px-8 py-4">
-              Contact Sales
-            </Link>
+          </div>
+          <div className="mt-6 animate-fade-in delay-300">
+            <AnimatedTerminal />
+          </div>
+          <div className="mt-4 text-sm text-gray-400 animate-fade-in delay-400">Available on <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" className="underline hover:text-indigo-300">npm</a> — <span className="font-mono">npx whisper-ai</span></div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-gradient-to-br from-[#312e81]/60 to-[#0f172a]/80 relative z-10">
+        <div className="max-w-5xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {howItWorks.map((step) => (
+              <div key={step.step} className="bg-gray-900 rounded-lg p-6 border border-gray-700 flex flex-col items-center shadow-lg hover:scale-105 transition-transform duration-200">
+                <div className="text-3xl font-bold mb-2 text-indigo-400">{step.step}</div>
+                <div className="font-semibold text-lg mb-2">{step.title}</div>
+                <div className="text-gray-300 mb-2 text-center">{step.desc}</div>
+                <div className="bg-gray-800 px-3 py-1 rounded font-mono text-sm text-indigo-200">{step.code}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                  <div className="w-4 h-4 bg-white rounded-sm"></div>
-                </div>
-                <span className="text-xl font-bold">SecureAI</span>
+      {/* Features */}
+      <section className="py-16 relative z-10">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">Why Whisper is the Better Cop</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((f, i) => (
+              <div key={i} className="bg-gray-900 rounded-lg p-8 border border-gray-700 flex flex-col items-center text-center shadow-lg hover:scale-105 transition-transform duration-200">
+                <div className="text-4xl mb-4 animate-bounce-slow">{f.icon}</div>
+                <div className="font-semibold text-lg mb-2">{f.title}</div>
+                <div className="text-gray-300">{f.desc}</div>
               </div>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                AI-powered security analysis for modern applications.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#security" className="hover:text-white transition-colors">Security</Link></li>
-                <li><Link href="#integrations" className="hover:text-white transition-colors">Integrations</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li><Link href="#about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="#blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#careers" className="hover:text-white transition-colors">Careers</Link></li>
-                <li><Link href="#contact" className="hover:text-white transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li><Link href="#help" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="#docs" className="hover:text-white transition-colors">Documentation</Link></li>
-                <li><Link href="#api" className="hover:text-white transition-colors">API Reference</Link></li>
-                <li><Link href="#status" className="hover:text-white transition-colors">Status</Link></li>
-              </ul>
-            </div>
+            ))}
           </div>
-          <div className="border-t border-white/10 mt-8 pt-8 text-center text-sm text-gray-300">
-            <p>&copy; 2024 SecureAI. All rights reserved.</p>
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section className="py-12 bg-gradient-to-br from-[#312e81]/60 to-[#0f172a]/80 relative z-10">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="text-xl md:text-2xl font-semibold mb-4 text-indigo-200">Trusted by thousands of developers</div>
+          <div className="flex flex-wrap justify-center gap-6 opacity-70">
+            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@yourcompany</div>
+            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@opensource</div>
+            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@securityweekly</div>
+            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@devs</div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Footer */}
+      <footer className="py-10 border-t border-white/10 mt-auto relative z-10">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xl font-bold text-white">Whisper</span>
+            <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" rel="noopener" className="bg-gray-800 px-3 py-1 rounded text-sm font-mono text-indigo-200 ml-2">npm</a>
+            <a href="https://github.com/your-org/whisper" target="_blank" rel="noopener" className="ml-2 text-gray-400 hover:text-indigo-300 underline">GitHub</a>
+            <a href="https://twitter.com/yourhandle" target="_blank" rel="noopener" className="ml-2 text-gray-400 hover:text-indigo-300 underline">Twitter</a>
+          </div>
+          <div className="flex gap-4 mt-4 md:mt-0">
+            <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded shadow">Get Started Free</Link>
+            <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" rel="noopener" className="bg-gray-900 hover:bg-gray-800 text-indigo-200 font-semibold px-6 py-3 rounded shadow border border-gray-700">npm install -g whisper-ai</a>
           </div>
         </div>
       </footer>
+
+      {/* Animations */}
+      <style jsx global>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: none; }
+        }
+        .animate-fade-in { animation: fade-in 0.8s cubic-bezier(.4,0,.2,1) both; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-slow { animation: bounce-slow 2.5s infinite; }
+      `}</style>
     </div>
   );
 }
