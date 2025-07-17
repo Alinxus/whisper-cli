@@ -44,12 +44,14 @@ const cliLines = [
 
 function AnimatedTerminal() {
   const [line, setLine] = useState(0);
+  const [showCursor, setShowCursor] = useState(true);
   useEffect(() => {
     const t = setInterval(() => setLine((l) => (l + 1) % (cliLines.length + 2)), 1200);
-    return () => clearInterval(t);
+    const cursor = setInterval(() => setShowCursor((c) => !c), 500);
+    return () => { clearInterval(t); clearInterval(cursor); };
   }, []);
   return (
-    <div className="relative bg-black/80 rounded-lg p-4 border border-gray-700 text-left font-mono text-base max-w-xl mx-auto min-h-[120px] overflow-hidden shadow-xl">
+    <div className="relative bg-black/80 rounded-lg p-4 border-2 border-indigo-600 text-left font-mono text-base max-w-xl mx-auto min-h-[140px] overflow-hidden shadow-2xl">
       {/* SVG terminal top bar */}
       <svg width="100%" height="24" className="absolute left-0 top-0" style={{zIndex:2}}>
         <rect x="0" y="0" width="100%" height="24" rx="8" fill="#18181b" />
@@ -59,9 +61,13 @@ function AnimatedTerminal() {
       </svg>
       <div className="pt-7 space-y-1 relative z-10">
         {cliLines.map((l, i) => (
-          <div key={i} className={l.color + (line >= i ? " animate-fade-in" : " opacity-0")}>{l.text}</div>
+          <div key={i} className={l.color + (line >= i ? " animate-fade-in" : " opacity-0")}>{l.text}{line === i && showCursor && <span className="inline-block w-2 h-5 bg-indigo-400 align-middle animate-blink ml-1" />}</div>
         ))}
       </div>
+      <style jsx>{`
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+        .animate-blink { animation: blink 1s step-end infinite; }
+      `}</style>
     </div>
   );
 }
@@ -89,26 +95,43 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] text-white flex flex-col relative overflow-x-hidden">
       <BgPattern />
+      {/* Navigation Bar */}
+      <nav className="sticky top-0 z-50 w-full bg-black/60 backdrop-blur border-b border-indigo-900/40 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl font-extrabold text-indigo-400 tracking-tight">Whisper</span>
+          </div>
+          <div className="hidden md:flex items-center gap-8 text-base font-medium">
+            <Link href="/" className="hover:text-indigo-300 transition">Home</Link>
+            <a href="#pricing" className="hover:text-indigo-300 transition">Pricing</a>
+            <Link href="/docs" className="hover:text-indigo-300 transition">Docs</Link>
+            <a href="/dashboard" className="hover:text-indigo-300 transition">Dashboard</a>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/auth/login" className="text-gray-300 hover:text-indigo-300 transition">Sign In</Link>
+            <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded shadow">Get Started</Link>
+          </div>
+        </div>
+      </nav>
       {/* Hero */}
-      <section className="pt-20 pb-16 px-4 md:px-0 flex flex-col items-center text-center relative z-10">
+      <section className="pt-24 pb-16 px-4 md:px-0 flex flex-col items-center text-center relative z-10">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in">
-            Whisper: The AI Security Cop for Your Code
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight animate-fade-in">
+            Meet Whisper
+            <span className="block text-indigo-400">Your AI Security Cop</span>
           </h1>
-          <p className="text-lg md:text-2xl text-gray-200 mb-8 animate-fade-in delay-100">
-            Whisper is an open-source CLI that scans, explains, and fixes vulnerabilities in your code—powered by the latest AI models.<br />
-            <span className="text-indigo-300 font-semibold">Install in seconds. Secure your code forever.</span>
+          <p className="text-xl md:text-2xl text-gray-200 mb-8 animate-fade-in delay-100">
+            Scan, fix, and secure your codebase in seconds — right from your terminal.<br />
+            <span className="text-indigo-300 font-semibold">npm install -g whisper-ai</span>
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 animate-fade-in delay-200">
             <div className="flex items-center bg-gray-800 rounded px-4 py-2 text-lg font-mono border border-gray-700">
               <span>npm install -g whisper-ai</span>
               <CopyButton text="npm install -g whisper-ai" />
             </div>
-            <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded shadow mt-2 sm:mt-0">
-              Get Started Free
-            </Link>
+            <Link href="/docs" className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-6 py-3 rounded shadow mt-2 sm:mt-0">Read the Docs</Link>
           </div>
-          <div className="mt-6 animate-fade-in delay-300">
+          <div className="mt-8 animate-fade-in delay-300">
             <AnimatedTerminal />
           </div>
           <div className="mt-4 text-sm text-gray-400 animate-fade-in delay-400">Available on <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" className="underline hover:text-indigo-300">npm</a> — <span className="font-mono">npx whisper-ai</span></div>
@@ -116,12 +139,12 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-gradient-to-br from-[#312e81]/60 to-[#0f172a]/80 relative z-10">
+      <section className="py-20 bg-gradient-to-br from-[#312e81]/60 to-[#0f172a]/80 relative z-10">
         <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">How It Works</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {howItWorks.map((step) => (
-              <div key={step.step} className="bg-gray-900 rounded-lg p-6 border border-gray-700 flex flex-col items-center shadow-lg hover:scale-105 transition-transform duration-200">
+              <div key={step.step} className="bg-gray-900 rounded-xl p-8 border-2 border-indigo-700 flex flex-col items-center shadow-lg hover:scale-105 transition-transform duration-200">
                 <div className="text-3xl font-bold mb-2 text-indigo-400">{step.step}</div>
                 <div className="font-semibold text-lg mb-2">{step.title}</div>
                 <div className="text-gray-300 mb-2 text-center">{step.desc}</div>
@@ -133,12 +156,12 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-16 relative z-10">
+      <section className="py-20 relative z-10">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">Why Whisper is the Better Cop</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">Why Whisper is the Better Cop</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {features.map((f, i) => (
-              <div key={i} className="bg-gray-900 rounded-lg p-8 border border-gray-700 flex flex-col items-center text-center shadow-lg hover:scale-105 transition-transform duration-200">
+              <div key={i} className="bg-gray-900 rounded-xl p-10 border-2 border-indigo-700 flex flex-col items-center text-center shadow-lg hover:scale-105 transition-transform duration-200">
                 <div className="text-4xl mb-4 animate-bounce-slow">{f.icon}</div>
                 <div className="font-semibold text-lg mb-2">{f.title}</div>
                 <div className="text-gray-300">{f.desc}</div>
@@ -149,14 +172,60 @@ export default function Home() {
       </section>
 
       {/* Social Proof */}
-      <section className="py-12 bg-gradient-to-br from-[#312e81]/60 to-[#0f172a]/80 relative z-10">
+      <section className="py-16 bg-gradient-to-br from-[#312e81]/60 to-[#0f172a]/80 relative z-10">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="text-xl md:text-2xl font-semibold mb-4 text-indigo-200">Trusted by thousands of developers</div>
-          <div className="flex flex-wrap justify-center gap-6 opacity-70">
-            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@yourcompany</div>
-            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@opensource</div>
-            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@securityweekly</div>
-            <div className="bg-gray-800 rounded px-6 py-3 text-gray-300">@devs</div>
+          <div className="text-2xl md:text-3xl font-semibold mb-6 text-indigo-200">Trusted by thousands of developers</div>
+          <div className="flex flex-wrap justify-center gap-8 opacity-80">
+            <div className="bg-gray-800 rounded px-8 py-4 text-gray-300 text-lg font-semibold">@yourcompany</div>
+            <div className="bg-gray-800 rounded px-8 py-4 text-gray-300 text-lg font-semibold">@opensource</div>
+            <div className="bg-gray-800 rounded px-8 py-4 text-gray-300 text-lg font-semibold">@securityweekly</div>
+            <div className="bg-gray-800 rounded px-8 py-4 text-gray-300 text-lg font-semibold">@devs</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 relative z-10">
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-10">Simple, Transparent Pricing</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gray-900 border-2 border-indigo-700 rounded-xl p-8 flex flex-col items-center shadow-lg">
+              <div className="text-2xl font-bold mb-2 text-indigo-400">Free</div>
+              <div className="text-4xl font-extrabold mb-4">$0</div>
+              <ul className="text-gray-300 mb-6 space-y-2 text-left">
+                <li>✔️ 10 scans/month</li>
+                <li>✔️ 1 repository</li>
+                <li>✔️ Basic security scanning</li>
+                <li>✔️ Markdown/HTML reports</li>
+              </ul>
+              <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded shadow">Get Started</Link>
+            </div>
+            <div className="bg-gradient-to-br from-indigo-700 to-indigo-500 border-2 border-indigo-700 rounded-xl p-8 flex flex-col items-center shadow-xl scale-105">
+              <div className="text-2xl font-bold mb-2 text-white">Pro</div>
+              <div className="text-4xl font-extrabold mb-4 text-white">$15<span className="text-lg font-normal">/mo</span></div>
+              <ul className="text-indigo-100 mb-6 space-y-2 text-left">
+                <li>✔️ 300 scans/month</li>
+                <li>✔️ AI-powered code fixes</li>
+                <li>✔️ Up to 20 private repos</li>
+                <li>✔️ CLI Auth Guard</li>
+                <li>✔️ Team config sync</li>
+                <li>✔️ Priority support</li>
+              </ul>
+              <Link href="/auth/signup" className="bg-white text-indigo-700 font-semibold px-6 py-2 rounded shadow">Start Pro</Link>
+            </div>
+            <div className="bg-gray-900 border-2 border-indigo-700 rounded-xl p-8 flex flex-col items-center shadow-lg">
+              <div className="text-2xl font-bold mb-2 text-indigo-400">Team</div>
+              <div className="text-4xl font-extrabold mb-4">$25<span className="text-lg font-normal">/user/mo</span></div>
+              <ul className="text-gray-300 mb-6 space-y-2 text-left">
+                <li>✔️ 1,000 scans/month (shared)</li>
+                <li>✔️ All Pro features</li>
+                <li>✔️ Shared team dashboard</li>
+                <li>✔️ CI/CD integration</li>
+                <li>✔️ Usage analytics</li>
+                <li>✔️ Priority support</li>
+              </ul>
+              <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded shadow">Start Team</Link>
+            </div>
           </div>
         </div>
       </section>
