@@ -1,411 +1,159 @@
 'use client';
+import Link from "next/link";
 import { useQuery } from '@tanstack/react-query';
-import { 
-  ShieldCheckIcon, 
-  ChartBarIcon, 
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  BoltIcon,
-  SparklesIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  EyeIcon,
-  CodeBracketIcon,
-  BugAntIcon,
-  FireIcon
-} from '@heroicons/react/24/outline';
 import { scansApi, projectsApi } from '../../lib/api';
 import { useAuthStore } from '../../lib/store';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { BugAntIcon, FireIcon, CodeBracketIcon, SparklesIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@heroicons/react/24/outline';
 
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  change?: string;
-  changeType?: 'positive' | 'negative' | 'neutral';
-  icon: React.ComponentType<{ className?: string }>;
-  gradient: string;
-  description?: string;
-}
+const navLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/projects", label: "Projects" },
+  { href: "/scans", label: "Scans" },
+  { href: "/billing", label: "Billing" },
+  { href: "/docs", label: "Docs" },
+  { href: "/profile", label: "Profile" },
+];
 
-function StatCard({ title, value, change, changeType, icon: Icon, gradient, description }: StatCardProps) {
-  const changeIcon = changeType === 'positive' ? ArrowTrendingUpIcon : changeType === 'negative' ? ArrowTrendingDownIcon : null;
-  const ChangeIcon = changeIcon;
-  
+function StatCard({ title, value, icon: Icon, gradient, description }) {
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
-          <div className="flex items-baseline">
-            <p className="text-3xl font-bold text-gray-900">{value}</p>
-            {change && ChangeIcon && (
-              <div className={`ml-2 flex items-center text-sm ${
-                changeType === 'positive' ? 'text-green-600' : 
-                changeType === 'negative' ? 'text-red-600' : 'text-gray-600'
-              }`}>
-                <ChangeIcon className="h-4 w-4 mr-1" />
-                {change}
-              </div>
-            )}
-          </div>
-          {description && (
-            <p className="text-xs text-gray-500 mt-1">{description}</p>
-          )}
-        </div>
-        <div className={`p-3 rounded-xl ${gradient}`}>
-          <Icon className="h-6 w-6 text-white" />
-        </div>
+    <div className={`rounded-xl p-6 border-2 ${gradient} shadow-lg flex flex-col items-start min-h-[120px]`}> 
+      <div className="flex items-center mb-2">
+        <Icon className="h-7 w-7 mr-3 text-white/80" />
+        <span className="text-lg font-semibold text-white/90">{title}</span>
       </div>
-      
-      {/* Decorative gradient overlay */}
-      <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 opacity-5">
-        <div className={`w-full h-full rounded-full ${gradient}`} />
-      </div>
-    </motion.div>
+      <div className="text-3xl font-extrabold text-white mb-1">{value}</div>
+      {description && <div className="text-sm text-indigo-100">{description}</div>}
+    </div>
   );
 }
 
-interface SecurityScoreProps {
-  score: number;
-  trend: 'up' | 'down' | 'stable';
-}
-
-function SecurityScore({ score, trend }: SecurityScoreProps) {
-  const getScoreColor = (score: number) => {
-    if (score >= 85) return 'text-green-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getScoreGradient = (score: number) => {
-    if (score >= 85) return 'from-green-500 to-emerald-600';
-    if (score >= 70) return 'from-yellow-500 to-orange-600';
-    return 'from-red-500 to-rose-600';
-  };
-
-  const radius = 45;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDasharray = circumference;
-  const strokeDashoffset = circumference - (score / 100) * circumference;
-
+function SecurityScore({ score, trend }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="card hover-lift"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Security Score</h3>
-        <div className="flex items-center space-x-2">
-          <div className={`p-2 rounded-lg bg-gradient-to-r ${getScoreGradient(score)}`}>
-            <ShieldCheckIcon className="h-5 w-5 text-white" />
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex items-center justify-center relative">
-        <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
-          <circle
-            cx="50"
-            cy="50"
-            r={radius}
-            fill="none"
-            stroke="#e5e7eb"
-            strokeWidth="8"
-          />
-          <motion.circle
-            cx="50"
-            cy="50"
-            r={radius}
-            fill="none"
-            stroke="url(#gradient)"
-            strokeWidth="8"
-            strokeLinecap="round"
-            strokeDasharray={strokeDasharray}
-            strokeDashoffset={strokeDashoffset}
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          />
-          <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#6366f1" />
-              <stop offset="100%" stopColor="#8b5cf6" />
-            </linearGradient>
-          </defs>
+    <div className="bg-gradient-to-br from-indigo-700 to-indigo-900 rounded-2xl p-8 flex flex-col items-center shadow-xl border-2 border-indigo-800">
+      <div className="relative mb-4">
+        <svg width="100" height="100">
+          <circle cx="50" cy="50" r="44" stroke="#312e81" strokeWidth="8" fill="none" />
+          <circle cx="50" cy="50" r="44" stroke="#6366f1" strokeWidth="8" fill="none" strokeDasharray={276} strokeDashoffset={276 - (score / 100) * 276} strokeLinecap="round" />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className={`text-3xl font-bold ${getScoreColor(score)}`}>{score}</div>
-            <div className="text-sm text-gray-500">Score</div>
-          </div>
-        </div>
+        <span className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white">{score}</span>
       </div>
-      
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          Your security posture is {score >= 85 ? 'excellent' : score >= 70 ? 'good' : 'needs improvement'}
-        </p>
+      <div className="text-lg font-semibold text-indigo-100 mb-1">Security Score</div>
+      <div className="flex items-center gap-2 text-sm">
+        {trend === 'up' ? <ArrowTrendingUpIcon className="h-4 w-4 text-green-400" /> : <ArrowTrendingDownIcon className="h-4 w-4 text-red-400" />}
+        <span className={trend === 'up' ? 'text-green-400' : 'text-red-400'}>{trend === 'up' ? '+5%' : '-3%'}</span>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-interface RecentActivityProps {
-  activities: Array<{
-    id: string;
-    type: 'scan' | 'fix' | 'alert';
-    message: string;
-    timestamp: Date;
-    severity?: 'low' | 'medium' | 'high' | 'critical';
-  }>;
-}
-
-function RecentActivity({ activities }: RecentActivityProps) {
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'scan': return BugAntIcon;
-      case 'fix': return CheckCircleIcon;
-      case 'alert': return ExclamationTriangleIcon;
-      default: return ClockIcon;
-    }
-  };
-
-  const getActivityColor = (type: string, severity?: string) => {
-    if (severity === 'critical') return 'bg-red-500';
-    if (severity === 'high') return 'bg-orange-500';
-    if (severity === 'medium') return 'bg-yellow-500';
-    if (severity === 'low') return 'bg-blue-500';
-    
-    switch (type) {
-      case 'scan': return 'bg-purple-500';
-      case 'fix': return 'bg-green-500';
-      case 'alert': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
+function RecentActivity({ activities }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-      className="card"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-        <Link href="/scans" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-          View all
-        </Link>
-      </div>
-      
-      <div className="space-y-4">
-        {activities.map((activity, index) => {
-          const Icon = getActivityIcon(activity.type);
-          return (
-            <motion.div
-              key={activity.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * index }}
-              className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className={`p-2 rounded-lg ${getActivityColor(activity.type, activity.severity)}`}>
-                <Icon className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {activity.message}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {format(activity.timestamp, 'MMM d, yyyy at h:mm a')}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </motion.div>
+    <div className="bg-gradient-to-br from-indigo-900/80 to-indigo-800/60 rounded-2xl p-6 shadow-lg border-2 border-indigo-800">
+      <div className="text-lg font-semibold text-white mb-4">Recent Activity</div>
+      <ul className="space-y-4">
+        {activities.map((a) => (
+          <li key={a.id} className="flex items-center gap-3">
+            {a.type === 'scan' && <BugAntIcon className="h-5 w-5 text-indigo-300" />}
+            {a.type === 'fix' && <SparklesIcon className="h-5 w-5 text-green-300" />}
+            {a.type === 'alert' && <FireIcon className="h-5 w-5 text-red-400" />}
+            <div>
+              <div className="text-white font-medium">{a.message}</div>
+              <div className="text-xs text-indigo-200">{format(a.timestamp, 'MMM d, HH:mm')}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
-  
-  const { data: stats } = useQuery({
-    queryKey: ['scan-stats'],
-    queryFn: scansApi.getScanStats,
-  });
-
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: projectsApi.getProjects,
-  });
+  const { data: stats } = useQuery({ queryKey: ['scan-stats'], queryFn: scansApi.getScanStats });
+  const { data: projects = [] } = useQuery({ queryKey: ['projects'], queryFn: projectsApi.getProjects });
 
   // Mock data for demo
   const mockActivities = [
-    {
-      id: '1',
-      type: 'scan' as const,
-      message: 'Security scan completed for Project Alpha',
-      timestamp: new Date(),
-      severity: 'medium' as const
-    },
-    {
-      id: '2',
-      type: 'fix' as const,
-      message: 'SQL injection vulnerability fixed',
-      timestamp: new Date(Date.now() - 3600000),
-      severity: 'high' as const
-    },
-    {
-      id: '3',
-      type: 'alert' as const,
-      message: 'Critical security issue detected',
-      timestamp: new Date(Date.now() - 7200000),
-      severity: 'critical' as const
-    }
+    { id: '1', type: 'scan', message: 'Security scan completed for Project Alpha', timestamp: new Date(), severity: 'medium' },
+    { id: '2', type: 'fix', message: 'SQL injection vulnerability fixed', timestamp: new Date(Date.now() - 3600000), severity: 'high' },
+    { id: '3', type: 'alert', message: 'Critical security issue detected', timestamp: new Date(Date.now() - 7200000), severity: 'critical' }
   ];
-
-  const securityScore = 78; // Mock score
+  const securityScore = 78;
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8 animate-fade-in">
-        {/* Header */}
-        <div className="">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-2"
-          >
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {user?.firstName || user?.username || 'User'}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Here's your security overview for today
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] flex">
+      {/* Sidebar Nav */}
+      <aside className="hidden md:flex flex-col w-64 bg-black/60 border-r border-indigo-900/40 py-8 px-4 sticky top-0 h-screen z-40">
+        <div className="mb-10 text-2xl font-extrabold text-indigo-400 tracking-tight">Whisper</div>
+        <nav className="flex flex-col gap-2">
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="px-4 py-2 rounded text-lg font-medium text-indigo-200 hover:bg-indigo-900/30 hover:text-white transition">
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="mt-auto pt-10">
+          <Link href="/auth/logout" className="block px-4 py-2 rounded text-lg font-medium text-red-300 hover:bg-red-900/30 hover:text-white transition">Logout</Link>
         </div>
-
+      </aside>
+      {/* Main Content */}
+      <main className="flex-1 min-h-screen px-4 md:px-12 py-10 md:py-16">
+        {/* Hero/Welcome */}
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">Welcome back, {user?.firstName || user?.username || 'User'} 👋</h1>
+          <p className="text-lg text-indigo-100">Here’s your security overview for today</p>
+        </div>
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Total Scans"
-            value={stats?.totalScans || 0}
-            change="+12%"
-            changeType="positive"
-            icon={BugAntIcon}
-            gradient="bg-gradient-to-r from-purple-500 to-purple-600"
-            description="This month"
-          />
-          
-          <StatCard
-            title="Critical Issues"
-            value={stats?.criticalIssues || 0}
-            change="-8%"
-            changeType="positive"
-            icon={FireIcon}
-            gradient="bg-gradient-to-r from-red-500 to-red-600"
-            description="Needs immediate attention"
-          />
-          
-          <StatCard
-            title="Projects"
-            value={projects.length}
-            icon={CodeBracketIcon}
-            gradient="bg-gradient-to-r from-blue-500 to-blue-600"
-            description="Active repositories"
-          />
-          
-          <StatCard
-            title="AI Fixes"
-            value={156}
-            change="+23%"
-            changeType="positive"
-            icon={SparklesIcon}
-            gradient="bg-gradient-to-r from-green-500 to-green-600"
-            description="Auto-generated solutions"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <StatCard title="Total Scans" value={stats?.totalScans || 0} icon={BugAntIcon} gradient="bg-gradient-to-br from-indigo-700 to-indigo-900 border-indigo-800" description="This month" />
+          <StatCard title="Critical Issues" value={stats?.criticalIssues || 0} icon={FireIcon} gradient="bg-gradient-to-br from-red-600 to-red-900 border-red-800" description="Needs attention" />
+          <StatCard title="Projects" value={projects.length} icon={CodeBracketIcon} gradient="bg-gradient-to-br from-blue-700 to-blue-900 border-blue-800" description="Active repositories" />
+          <StatCard title="AI Fixes" value={156} icon={SparklesIcon} gradient="bg-gradient-to-br from-green-600 to-green-900 border-green-800" description="Auto-generated solutions" />
         </div>
-
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           {/* Security Score */}
           <div className="lg:col-span-1">
             <SecurityScore score={securityScore} trend="up" />
           </div>
-          
           {/* Recent Activity */}
           <div className="lg:col-span-2">
             <RecentActivity activities={mockActivities} />
           </div>
         </div>
-
         {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="card"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/projects" className="group">
-              <div className="p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <CodeBracketIcon className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">New Project</h4>
-                    <p className="text-sm text-gray-500">Create a new security project</p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-            
-            <Link href="/scans" className="group">
-              <div className="p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <BugAntIcon className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">Run Scan</h4>
-                    <p className="text-sm text-gray-500">Start a security scan</p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-            
-            <Link href="/ai" className="group">
-              <div className="p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <SparklesIcon className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">AI Assistant</h4>
-                    <p className="text-sm text-gray-500">Get AI-powered help</p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-    </DashboardLayout>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+          <Link href="/projects" className="group">
+            <div className="p-6 rounded-xl border-2 border-indigo-700 bg-indigo-900/40 hover:bg-indigo-800/60 transition-all duration-200 shadow-lg flex flex-col items-center">
+              <CodeBracketIcon className="h-7 w-7 text-indigo-300 mb-2" />
+              <h4 className="font-medium text-white">New Project</h4>
+              <p className="text-sm text-indigo-100">Create a new security project</p>
+            </div>
+          </Link>
+          <Link href="/scans" className="group">
+            <div className="p-6 rounded-xl border-2 border-indigo-700 bg-indigo-900/40 hover:bg-indigo-800/60 transition-all duration-200 shadow-lg flex flex-col items-center">
+              <BugAntIcon className="h-7 w-7 text-indigo-300 mb-2" />
+              <h4 className="font-medium text-white">Run Scan</h4>
+              <p className="text-sm text-indigo-100">Start a security scan</p>
+            </div>
+          </Link>
+          <Link href="/ai" className="group">
+            <div className="p-6 rounded-xl border-2 border-indigo-700 bg-indigo-900/40 hover:bg-indigo-800/60 transition-all duration-200 shadow-lg flex flex-col items-center">
+              <SparklesIcon className="h-7 w-7 text-indigo-300 mb-2" />
+              <h4 className="font-medium text-white">AI Assistant</h4>
+              <p className="text-sm text-indigo-100">Get AI-powered help</p>
+            </div>
+          </Link>
+          <Link href="/docs" className="group">
+            <div className="p-6 rounded-xl border-2 border-indigo-700 bg-indigo-900/40 hover:bg-indigo-800/60 transition-all duration-200 shadow-lg flex flex-col items-center">
+              <SparklesIcon className="h-7 w-7 text-indigo-300 mb-2" />
+              <h4 className="font-medium text-white">Docs</h4>
+              <p className="text-sm text-indigo-100">Read the documentation</p>
+            </div>
+          </Link>
+        </div>
+      </main>
+    </div>
   );
 }

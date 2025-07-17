@@ -1,4 +1,6 @@
+import * as React from "react";
 import Link from "next/link";
+import { BookOpenIcon, CommandLineIcon, Cog6ToothIcon, RocketLaunchIcon, LightBulbIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
 const sections = [
   { id: "getting-started", title: "Getting Started" },
@@ -8,6 +10,16 @@ const sections = [
   { id: "how-it-works", title: "How It Works" },
   { id: "faq", title: "FAQ" },
 ];
+
+// Add type for sectionIcons to allow string indexing
+const sectionIcons: Record<string, React.JSX.Element> = {
+  'getting-started': <RocketLaunchIcon className="inline w-7 h-7 mr-2 text-indigo-400 align-middle" />, 
+  'cli-commands': <CommandLineIcon className="inline w-7 h-7 mr-2 text-indigo-400 align-middle" />, 
+  'self-hosting': <Cog6ToothIcon className="inline w-7 h-7 mr-2 text-indigo-400 align-middle" />, 
+  'advanced-guides': <LightBulbIcon className="inline w-7 h-7 mr-2 text-indigo-400 align-middle" />, 
+  'how-it-works': <BookOpenIcon className="inline w-7 h-7 mr-2 text-indigo-400 align-middle" />, 
+  'faq': <QuestionMarkCircleIcon className="inline w-7 h-7 mr-2 text-indigo-400 align-middle" />
+};
 
 export default function DocsPage() {
   return (
@@ -27,20 +39,30 @@ export default function DocsPage() {
       </section>
       <div className="flex flex-1 w-full max-w-6xl mx-auto px-4 py-10 gap-10">
         {/* Sidebar */}
-        <aside className="hidden md:block w-64 flex-shrink-0">
-          <nav className="sticky top-28 space-y-2">
-            {sections.map((s) => (
-              <a key={s.id} href={`#${s.id}`} className="block px-4 py-2 rounded text-lg font-medium text-indigo-200 hover:bg-indigo-900/30 hover:text-white transition">
-                {s.title}
-              </a>
-            ))}
-          </nav>
-        </aside>
+        <nav className="sticky top-28 space-y-2 min-w-[220px] hidden md:block">
+          {sections.map((s) => (
+            <a
+              key={s.id}
+              href={`#${s.id}`}
+              className={
+                `block px-4 py-2 rounded text-lg font-medium transition font-semibold ` +
+                `text-indigo-200 hover:bg-indigo-900/30 hover:text-white sidebar-link`
+              }
+              data-section={s.id}
+            >
+              {sectionIcons[s.id as keyof typeof sectionIcons]}{s.title}
+            </a>
+          ))}
+        </nav>
         {/* Main Content */}
-        <main className="flex-1 space-y-16">
+        <main className="flex-1 space-y-24">
           {/* Getting Started */}
-          <section id="getting-started" className="scroll-mt-24">
-            <h2 className="text-3xl font-bold mb-4 text-indigo-300">Getting Started</h2>
+          <section id="getting-started" className="scroll-mt-24 group">
+            <div className="flex items-center gap-2 mb-2">
+              {sectionIcons['getting-started']}
+              <h2 className="text-3xl font-bold text-indigo-300 inline">Getting Started</h2>
+            </div>
+            <div className="h-1 w-16 bg-indigo-700 rounded mb-6 group-hover:w-24 transition-all" />
             <ul className="mb-4 text-lg text-gray-200 list-disc list-inside space-y-2">
               <li><b>Prerequisites:</b> Node.js 18+ and npm installed. (Check with <span className="font-mono">node -v</span> and <span className="font-mono">npm -v</span>)</li>
               <li>Optional: <b>Git</b> for version control, <b>Docker</b> for self-hosting.</li>
@@ -60,8 +82,12 @@ export default function DocsPage() {
           </section>
 
           {/* CLI Commands */}
-          <section id="cli-commands" className="scroll-mt-24">
-            <h2 className="text-3xl font-bold mb-4 text-indigo-300">CLI Commands</h2>
+          <section id="cli-commands" className="scroll-mt-24 group">
+            <div className="flex items-center gap-2 mb-2">
+              {sectionIcons['cli-commands']}
+              <h2 className="text-3xl font-bold text-indigo-300 inline">CLI Commands</h2>
+            </div>
+            <div className="h-1 w-16 bg-indigo-700 rounded mb-6 group-hover:w-24 transition-all" />
             <div className="space-y-10">
               {/* SCAN */}
               <div>
@@ -176,8 +202,12 @@ whisper history --clear</pre>
           </section>
 
           {/* Self-Hosting */}
-          <section id="self-hosting" className="scroll-mt-24">
-            <h2 className="text-3xl font-bold mb-4 text-indigo-300">Self-Hosting</h2>
+          <section id="self-hosting" className="scroll-mt-24 group">
+            <div className="flex items-center gap-2 mb-2">
+              {sectionIcons['self-hosting']}
+              <h2 className="text-3xl font-bold text-indigo-300 inline">Self-Hosting</h2>
+            </div>
+            <div className="h-1 w-16 bg-indigo-700 rounded mb-6 group-hover:w-24 transition-all" />
             <p className="mb-4 text-lg text-gray-200">Whisper is open source and can be self-hosted for full control and privacy.</p>
             <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200 mb-6">
               <li>
@@ -211,8 +241,12 @@ cd whisper</pre>
           </section>
 
           {/* Advanced Guides */}
-          <section id="advanced-guides" className="scroll-mt-24">
-            <h2 className="text-3xl font-bold mb-4 text-indigo-300">Advanced Guides</h2>
+          <section id="advanced-guides" className="scroll-mt-24 group">
+            <div className="flex items-center gap-2 mb-2">
+              {sectionIcons['advanced-guides']}
+              <h2 className="text-3xl font-bold text-indigo-300 inline">Advanced Guides</h2>
+            </div>
+            <div className="h-1 w-16 bg-indigo-700 rounded mb-6 group-hover:w-24 transition-all" />
             <div className="space-y-10">
               {/* CI/CD Integration */}
               <div>
@@ -266,24 +300,22 @@ whisper fix . --model openai
                   <li>Export a function that receives the scan context and findings.</li>
                   <li>Register your plugin in <span className="font-mono">lib/plugins/index.js</span>.</li>
                 </ol>
-                <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-sm mb-2 overflow-x-auto">// my-plugin.js
+                <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-sm mb-2 overflow-x-auto">{`// my-plugin.js
 module.exports = function(context, findings) {
   // Custom logic here
   return findings;
-};
-</pre>
+};`}</pre>
                 <p className="text-gray-400 text-sm">See <a href="https://github.com/your-org/whisper/tree/main/lib/plugins" target="_blank" className="underline hover:text-indigo-300">plugin examples</a> on GitHub.</p>
               </div>
               {/* Advanced CLI Usage */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">Advanced CLI Usage</h3>
                 <p className="text-gray-300 mb-2">Chain commands, use in scripts, or automate with shell tools:</p>
-                <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-sm mb-2 overflow-x-auto"># Scan and auto-fix in one line
+                <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-sm mb-2 overflow-x-auto">{`# Scan and auto-fix in one line
 whisper scan . && whisper fix .
 
 # Save output and email report
-whisper scan . --format html --output report.html && mail -s "Scan Report" you@email.com < report.html
-</pre>
+whisper scan . --format html --output report.html && mail -s "Scan Report" you@email.com < report.html`}</pre>
               </div>
               {/* Security Best Practices */}
               <div>
@@ -310,8 +342,12 @@ whisper scan . --format html --output report.html && mail -s "Scan Report" you@e
           </section>
 
           {/* How It Works */}
-          <section id="how-it-works" className="scroll-mt-24">
-            <h2 className="text-3xl font-bold mb-4 text-indigo-300">How It Works</h2>
+          <section id="how-it-works" className="scroll-mt-24 group">
+            <div className="flex items-center gap-2 mb-2">
+              {sectionIcons['how-it-works']}
+              <h2 className="text-3xl font-bold text-indigo-300 inline">How It Works</h2>
+            </div>
+            <div className="h-1 w-16 bg-indigo-700 rounded mb-6 group-hover:w-24 transition-all" />
             <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200">
               <li><span className="font-semibold text-indigo-200">Install:</span> Whisper is a Node.js CLI. Install globally with npm or use npx for one-off runs.</li>
               <li><span className="font-semibold text-indigo-200">Scan:</span> Run <span className="font-mono">whisper scan .</span> in your project directory. Whisper analyzes your code for vulnerabilities using advanced AI models.</li>
@@ -322,8 +358,12 @@ whisper scan . --format html --output report.html && mail -s "Scan Report" you@e
           </section>
 
           {/* FAQ */}
-          <section id="faq" className="scroll-mt-24">
-            <h2 className="text-3xl font-bold mb-4 text-indigo-300">FAQ</h2>
+          <section id="faq" className="scroll-mt-24 group">
+            <div className="flex items-center gap-2 mb-2">
+              {sectionIcons['faq']}
+              <h2 className="text-3xl font-bold text-indigo-300 inline">FAQ</h2>
+            </div>
+            <div className="h-1 w-16 bg-indigo-700 rounded mb-6 group-hover:w-24 transition-all" />
             <div className="space-y-6">
               <div>
                 <h3 className="font-semibold text-lg text-indigo-200 mb-1">Is Whisper open source?</h3>
