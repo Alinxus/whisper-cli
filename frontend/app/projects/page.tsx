@@ -153,6 +153,27 @@ function CreateProjectModal({ isOpen, onClose, organizations }: CreateProjectMod
   );
 }
 
+// Add AnimatedLines component for subtle animated SVG lines
+function AnimatedLines() {
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" aria-hidden="true">
+      <g className="animate-move-lines">
+        <polyline points="0,100 100,200 300,100 500,200 700,100" fill="none" stroke="#6366f1" strokeWidth="2" opacity="0.12">
+          <animate attributeName="points" values="0,100 100,200 300,100 500,200 700,100;0,120 100,180 300,120 500,180 700,120;0,100 100,200 300,100 500,200 700,100" dur="8s" repeatCount="indefinite" />
+        </polyline>
+        <polyline points="0,300 200,400 400,300 600,400 800,300" fill="none" stroke="#818cf8" strokeWidth="2" opacity="0.10">
+          <animate attributeName="points" values="0,300 200,400 400,300 600,400 800,300;0,320 200,380 400,320 600,380 800,320;0,300 200,400 400,300 600,400 800,300" dur="10s" repeatCount="indefinite" />
+        </polyline>
+      </g>
+      <style>{`
+        .animate-move-lines polyline {
+          filter: blur(0.5px);
+        }
+      `}</style>
+    </svg>
+  );
+}
+
 export default function ProjectsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -197,25 +218,15 @@ export default function ProjectsPage() {
   });
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-            <p className="text-gray-600">Manage your security scanning projects</p>
-          </div>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            <PlusIcon className="h-4 w-4 mr-2" />
-            New Project
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] flex relative">
+      <AnimatedLines />
+      <DashboardLayout>
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">Projects</h1>
+          <p className="text-lg text-indigo-100">Manage your security projects and repositories</p>
         </div>
-
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
@@ -327,13 +338,7 @@ export default function ProjectsPage() {
             </p>
           </div>
         )}
-      </div>
-
-      <CreateProjectModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        organizations={organizations}
-      />
-    </DashboardLayout>
+      </DashboardLayout>
+    </div>
   );
 }

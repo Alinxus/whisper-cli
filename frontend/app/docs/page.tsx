@@ -21,9 +21,31 @@ const sectionIcons: Record<string, React.JSX.Element> = {
   'faq': <QuestionMarkCircleIcon className="inline w-7 h-7 mr-2 text-indigo-400 align-middle" />
 };
 
+// Add AnimatedLines component for subtle animated SVG lines
+function AnimatedLines() {
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" aria-hidden="true">
+      <g className="animate-move-lines">
+        <polyline points="0,100 100,200 300,100 500,200 700,100" fill="none" stroke="#6366f1" strokeWidth="2" opacity="0.12">
+          <animate attributeName="points" values="0,100 100,200 300,100 500,200 700,100;0,120 100,180 300,120 500,180 700,120;0,100 100,200 300,100 500,200 700,100" dur="8s" repeatCount="indefinite" />
+        </polyline>
+        <polyline points="0,300 200,400 400,300 600,400 800,300" fill="none" stroke="#818cf8" strokeWidth="2" opacity="0.10">
+          <animate attributeName="points" values="0,300 200,400 400,300 600,400 800,300;0,320 200,380 400,320 600,380 800,320;0,300 200,400 400,300 600,400 800,300" dur="10s" repeatCount="indefinite" />
+        </polyline>
+      </g>
+      <style>{`
+        .animate-move-lines polyline {
+          filter: blur(0.5px);
+        }
+      `}</style>
+    </svg>
+  );
+}
+
 export default function DocsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] text-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] text-white flex flex-col overflow-x-hidden relative">
+      <AnimatedLines />
       {/* Hero */}
       <section className="pt-20 pb-10 px-4 md:px-0 text-center border-b border-indigo-900/40 bg-black/60 backdrop-blur">
         <div className="max-w-2xl mx-auto">
@@ -34,12 +56,14 @@ export default function DocsPage() {
           <div className="flex flex-wrap justify-center gap-4 mt-4">
             <Link href="/" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded shadow">Back to Home</Link>
             <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" className="bg-gray-900 hover:bg-gray-800 text-indigo-200 font-semibold px-6 py-2 rounded shadow border border-gray-700">npm install -g whisper-ai</a>
+            <a href="https://github.com/Alinxus/whisper-cli" target="_blank" className="bg-gray-900 hover:bg-gray-800 text-indigo-200 font-semibold px-6 py-2 rounded shadow border border-gray-700">GitHub</a>
+            <a href="https://x.com/alameenpd" target="_blank" className="bg-gray-900 hover:bg-gray-800 text-indigo-200 font-semibold px-6 py-2 rounded shadow border border-gray-700">Twitter</a>
           </div>
         </div>
       </section>
-      <div className="flex flex-1 w-full max-w-6xl mx-auto px-4 py-10 gap-10">
+      <div className="flex flex-1 w-full max-w-6xl mx-auto px-4 py-10 gap-10 overflow-x-hidden">
         {/* Sidebar */}
-        <nav className="sticky top-28 space-y-2 min-w-[220px] hidden md:block">
+        <nav className="sticky top-28 space-y-2 min-w-[220px] max-w-[220px] hidden md:block">
           {sections.map((s) => (
             <a
               key={s.id}
@@ -55,7 +79,7 @@ export default function DocsPage() {
           ))}
         </nav>
         {/* Main Content */}
-        <main className="flex-1 space-y-24">
+        <main className="flex-1 space-y-24 max-w-full overflow-x-auto">
           {/* Getting Started */}
           <section id="getting-started" className="scroll-mt-24 group">
             <div className="flex items-center gap-2 mb-2">
@@ -92,14 +116,14 @@ export default function DocsPage() {
               {/* SCAN */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper scan [path]</h3>
-                <p className="text-gray-300 mb-2">Scan your codebase for vulnerabilities.</p>
+                <p className="text-gray-300 mb-2">Scan your codebase for vulnerabilities. Supports AI-powered analysis and multiple output formats.</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper scan .
 whisper scan ./src --ai --format html --output report.html</pre>
                 <ul className="text-gray-300 list-disc list-inside space-y-1 mb-2">
                   <li><b>--ai</b>: Enable AI-powered analysis (default: true)</li>
                   <li><b>--format</b>: Output format (markdown, html, json, csv)</li>
                   <li><b>--output</b>: Output file path</li>
-                  <li><b>--fix</b>: Attempt to auto-fix issues</li>
+                  <li><b>--fix</b>: Attempt to auto-fix issues (see <b>whisper fix</b>)</li>
                   <li><b>--ignore</b>: Ignore patterns (comma-separated)</li>
                   <li><b>--include</b>: Include patterns (comma-separated)</li>
                   <li><b>--max-files</b>: Maximum files to scan</li>
@@ -111,7 +135,7 @@ whisper scan ./src --ai --format html --output report.html</pre>
               {/* FIX */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper fix [path]</h3>
-                <p className="text-gray-300 mb-2">Get AI-powered fix suggestions for issues found.</p>
+                <p className="text-gray-300 mb-2">Get AI-powered fix suggestions for issues found in your last scan. Interactive mode supported.</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper fix . --interactive --severity high</pre>
                 <ul className="text-gray-300 list-disc list-inside space-y-1 mb-2">
                   <li><b>--interactive</b>: Interactive mode for applying fixes</li>
@@ -122,7 +146,7 @@ whisper scan ./src --ai --format html --output report.html</pre>
               {/* EXPLAIN */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper explain &lt;file&gt;</h3>
-                <p className="text-gray-300 mb-2">Explain code or security risks in a file.</p>
+                <p className="text-gray-300 mb-2">Explain code or security risks in a file or function.</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper explain src/app.js --line 42
 whisper explain src/utils.js --function loginUser</pre>
                 <ul className="text-gray-300 list-disc list-inside space-y-1 mb-2">
@@ -135,7 +159,7 @@ whisper explain src/utils.js --function loginUser</pre>
               {/* TEAM */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper team [subcommand]</h3>
-                <p className="text-gray-300 mb-2">Team and organization management.</p>
+                <p className="text-gray-300 mb-2">Team and organization management. (Requires team plan)</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper team sync --project my-app --org my-org
 whisper team invite user@email.com --role admin</pre>
                 <ul className="text-gray-300 list-disc list-inside space-y-1 mb-2">
@@ -147,7 +171,7 @@ whisper team invite user@email.com --role admin</pre>
               {/* CONFIG */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper config [get|set|list]</h3>
-                <p className="text-gray-300 mb-2">Manage CLI configuration.</p>
+                <p className="text-gray-300 mb-2">Manage CLI configuration (API key, model, etc).</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper config get apiKey
 whisper config set apiKey my-key
 whisper config list</pre>
@@ -155,7 +179,7 @@ whisper config list</pre>
               {/* ANALYTICS */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper analytics usage</h3>
-                <p className="text-gray-300 mb-2">Show usage statistics.</p>
+                <p className="text-gray-300 mb-2">Show usage statistics (Pro/Team plans).</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper analytics usage --period week</pre>
               </div>
               {/* CHAT */}
@@ -167,7 +191,7 @@ whisper config list</pre>
               {/* GUARD */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper guard</h3>
-                <p className="text-gray-300 mb-2">Git pre-commit security guard.</p>
+                <p className="text-gray-300 mb-2">Git pre-commit security guard. Blocks risky commits based on scan results.</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper guard --install
 whisper guard --uninstall --severity high</pre>
                 <ul className="text-gray-300 list-disc list-inside space-y-1 mb-2">
@@ -179,7 +203,7 @@ whisper guard --uninstall --severity high</pre>
               {/* PLUGIN */}
               <div>
                 <h3 className="text-2xl font-semibold text-indigo-200 mb-2">whisper plugin [install|list|remove]</h3>
-                <p className="text-gray-300 mb-2">Plugin management.</p>
+                <p className="text-gray-300 mb-2">Plugin management. Extend Whisper with custom plugins.</p>
                 <pre className="bg-gray-900 rounded p-4 text-indigo-200 font-mono text-base mb-2 overflow-x-auto">whisper plugin install my-plugin
 whisper plugin list
 whisper plugin remove my-plugin</pre>
@@ -367,7 +391,7 @@ whisper scan . --format html --output report.html && mail -s "Scan Report" you@e
             <div className="space-y-6">
               <div>
                 <h3 className="font-semibold text-lg text-indigo-200 mb-1">Is Whisper open source?</h3>
-                <p className="text-gray-300">Yes! Whisper is open source and available on <a href="https://github.com/your-org/whisper" target="_blank" className="underline hover:text-indigo-300">GitHub</a>.</p>
+                <p className="text-gray-300">Yes! Whisper is open source and available on <a href="https://github.com/Alinxus/whisper-cli" target="_blank" className="underline hover:text-indigo-300">GitHub</a>.</p>
               </div>
               <div>
                 <h3 className="font-semibold text-lg text-indigo-200 mb-1">Do I need Node.js installed?</h3>

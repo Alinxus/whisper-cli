@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useQuery } from '@tanstack/react-query';
 import { scansApi, projectsApi } from '../../lib/api';
+import { dashboardApi } from '../../lib/api';
 import { useAuthStore } from '../../lib/store';
 import { format } from 'date-fns';
 import { BugAntIcon, FireIcon, CodeBracketIcon, SparklesIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@heroicons/react/24/outline';
@@ -28,38 +29,23 @@ function StatCard({ title, value, icon: Icon, gradient, description } : any) {
   );
 }
 
-function SecurityScore({ score, trend } : any) {
-  return (
-    <div className="bg-gradient-to-br from-indigo-700 to-indigo-900 rounded-2xl p-8 flex flex-col items-center shadow-xl border-2 border-indigo-800">
-      <div className="relative mb-4">
-        <svg width="100" height="100">
-          <circle cx="50" cy="50" r="44" stroke="#312e81" strokeWidth="8" fill="none" />
-          <circle cx="50" cy="50" r="44" stroke="#6366f1" strokeWidth="8" fill="none" strokeDasharray={276} strokeDashoffset={276 - (score / 100) * 276} strokeLinecap="round" />
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white">{score}</span>
-      </div>
-      <div className="text-lg font-semibold text-indigo-100 mb-1">Security Score</div>
-      <div className="flex items-center gap-2 text-sm">
-        {trend === 'up' ? <ArrowTrendingUpIcon className="h-4 w-4 text-green-400" /> : <ArrowTrendingDownIcon className="h-4 w-4 text-red-400" />}
-        <span className={trend === 'up' ? 'text-green-400' : 'text-red-400'}>{trend === 'up' ? '+5%' : '-3%'}</span>
-      </div>
-    </div>
-  );
-}
-
-function RecentActivity({ activities } : any) {
+// Remove SecurityScore and RecentActivity components
+// Add RecentScans component
+function RecentScans({ scans }: any) {
   return (
     <div className="bg-gradient-to-br from-indigo-900/80 to-indigo-800/60 rounded-2xl p-6 shadow-lg border-2 border-indigo-800">
-      <div className="text-lg font-semibold text-white mb-4">Recent Activity</div>
+      <div className="text-lg font-semibold text-white mb-4">Recent Scans</div>
       <ul className="space-y-4">
-        {activities.map((a : any) => (
-          <li key={a.id} className="flex items-center gap-3">
-            {a.type === 'scan' && <BugAntIcon className="h-5 w-5 text-indigo-300" />}
-            {a.type === 'fix' && <SparklesIcon className="h-5 w-5 text-green-300" />}
-            {a.type === 'alert' && <FireIcon className="h-5 w-5 text-red-400" />}
+        {scans.map((scan: any) => (
+          <li key={scan.id} className="flex items-center gap-3">
+            <BugAntIcon className="h-5 w-5 text-indigo-300" />
             <div>
-              <div className="text-white font-medium">{a.message}</div>
-              <div className="text-xs text-indigo-200">{format(a.timestamp, 'MMM d, HH:mm')}</div>
+              <div className="text-white font-medium">
+                {scan.project?.name || 'Unknown Project'} - {scan.status}
+              </div>
+              <div className="text-xs text-indigo-200">
+                {scan.startedAt ? format(new Date(scan.startedAt), 'MMM d, HH:mm') : ''}
+              </div>
             </div>
           </li>
         ))}
@@ -70,16 +56,11 @@ function RecentActivity({ activities } : any) {
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
-  const { data: stats } = useQuery({ queryKey: ['scan-stats'], queryFn: scansApi.getScanStats });
-  const { data: projects = [] } = useQuery({ queryKey: ['projects'], queryFn: projectsApi.getProjects });
-
-  // Mock data for demo
-  const mockActivities = [
-    { id: '1', type: 'scan', message: 'Security scan completed for Project Alpha', timestamp: new Date(), severity: 'medium' },
-    { id: '2', type: 'fix', message: 'SQL injection vulnerability fixed', timestamp: new Date(Date.now() - 3600000), severity: 'high' },
-    { id: '3', type: 'alert', message: 'Critical security issue detected', timestamp: new Date(Date.now() - 7200000), severity: 'critical' }
-  ];
-  const securityScore = 78;
+  // Fetch dashboard overview data
+  const { data: overview } = useQuery({ queryKey: ['dashboard-overview'], queryFn: dashboardApi.getOverview });
+  const stats = overview?.stats || {};
+  const recentScans = overview?.recentScans || [];
+  const projectsCount = stats.totalProjects || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] flex">
@@ -105,21 +86,16 @@ export default function DashboardPage() {
           <p className="text-lg text-indigo-100">Here’s your security overview for today</p>
         </div>
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          <StatCard title="Total Scans" value={stats?.totalScans || 0} icon={BugAntIcon} gradient="bg-gradient-to-br from-indigo-700 to-indigo-900 border-indigo-800" description="This month" />
-          <StatCard title="Critical Issues" value={stats?.criticalIssues || 0} icon={FireIcon} gradient="bg-gradient-to-br from-red-600 to-red-900 border-red-800" description="Needs attention" />
-          <StatCard title="Projects" value={projects.length} icon={CodeBracketIcon} gradient="bg-gradient-to-br from-blue-700 to-blue-900 border-blue-800" description="Active repositories" />
-          <StatCard title="AI Fixes" value={156} icon={SparklesIcon} gradient="bg-gradient-to-br from-green-600 to-green-900 border-green-800" description="Auto-generated solutions" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <StatCard title="Total Scans" value={stats.totalScans || 0} icon={BugAntIcon} gradient="bg-gradient-to-br from-indigo-700 to-indigo-900 border-indigo-800" description="This month" />
+          <StatCard title="Critical Issues" value={stats.criticalFindings || 0} icon={FireIcon} gradient="bg-gradient-to-br from-red-600 to-red-900 border-red-800" description="Needs attention" />
+          <StatCard title="Projects" value={projectsCount} icon={CodeBracketIcon} gradient="bg-gradient-to-br from-blue-700 to-blue-900 border-blue-800" description="Active repositories" />
         </div>
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          {/* Security Score */}
-          <div className="lg:col-span-1">
-            <SecurityScore score={securityScore} trend="up" />
-          </div>
-          {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Recent Scans */}
           <div className="lg:col-span-2">
-            <RecentActivity activities={mockActivities} />
+            <RecentScans scans={recentScans} />
           </div>
         </div>
         {/* Quick Actions */}

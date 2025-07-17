@@ -91,10 +91,57 @@ function BgPattern() {
   );
 }
 
+// Add AnimatedBackground component for a more engaging effect
+function AnimatedBackground() {
+  return (
+    <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[120vw] h-[120vw] animate-gradient-spin bg-[conic-gradient(at_top_left,_var(--tw-gradient-stops))] from-indigo-700 via-indigo-400 to-indigo-900 opacity-40 blur-2xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/30 rounded-full filter blur-3xl animate-float-slow" />
+      <div className="absolute top-1/3 left-1/2 w-72 h-72 bg-indigo-300/20 rounded-full filter blur-2xl animate-float" />
+      <style jsx>{`
+        @keyframes gradient-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .animate-gradient-spin { animation: gradient-spin 24s linear infinite; }
+        @keyframes float {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-20px) scale(1.05); }
+        }
+        .animate-float { animation: float 8s ease-in-out infinite; }
+        .animate-float-slow { animation: float 16s ease-in-out infinite; }
+      `}</style>
+    </div>
+  );
+}
+
+// Add AnimatedLines component for subtle animated SVG lines
+function AnimatedLines() {
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" aria-hidden="true">
+      <g className="animate-move-lines">
+        <polyline points="0,100 100,200 300,100 500,200 700,100" fill="none" stroke="#6366f1" strokeWidth="2" opacity="0.12">
+          <animate attributeName="points" values="0,100 100,200 300,100 500,200 700,100;0,120 100,180 300,120 500,180 700,120;0,100 100,200 300,100 500,200 700,100" dur="8s" repeatCount="indefinite" />
+        </polyline>
+        <polyline points="0,300 200,400 400,300 600,400 800,300" fill="none" stroke="#818cf8" strokeWidth="2" opacity="0.10">
+          <animate attributeName="points" values="0,300 200,400 400,300 600,400 800,300;0,320 200,380 400,320 600,380 800,320;0,300 200,400 400,300 600,400 800,300" dur="10s" repeatCount="indefinite" />
+        </polyline>
+      </g>
+      <style>{`
+        .animate-move-lines polyline {
+          filter: blur(0.5px);
+        }
+      `}</style>
+    </svg>
+  );
+}
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] text-white flex flex-col relative overflow-x-hidden">
+      <AnimatedBackground />
       <BgPattern />
+      <AnimatedLines />
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-50 w-full bg-black/60 backdrop-blur border-b border-indigo-900/40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
@@ -105,23 +152,22 @@ export default function Home() {
             <Link href="/" className="hover:text-indigo-300 transition">Home</Link>
             <a href="#pricing" className="hover:text-indigo-300 transition">Pricing</a>
             <Link href="/docs" className="hover:text-indigo-300 transition">Docs</Link>
-            <a href="/dashboard" className="hover:text-indigo-300 transition">Dashboard</a>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/auth/login" className="text-gray-300 hover:text-indigo-300 transition">Sign In</Link>
-            <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded shadow">Get Started</Link>
+            <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded shadow scale-110 animate-pulse">Get Started</Link>
           </div>
         </div>
       </nav>
       {/* Hero */}
       <section className="pt-24 pb-16 px-4 md:px-0 flex flex-col items-center text-center relative z-10">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight animate-fade-in">
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight animate-fade-in drop-shadow-lg">
             Meet Whisper
             <span className="block text-indigo-400">Your AI Security Cop</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-200 mb-8 animate-fade-in delay-100">
-            Scan, fix, and secure your codebase in seconds — right from your terminal.<br />
+          <p className="text-xl md:text-2xl text-gray-200 mb-8 animate-fade-in delay-100 drop-shadow">
+            Scan, fix, and secure your codebase in seconds  right from your terminal.<br />
             <span className="text-indigo-300 font-semibold">npm install -g whisper-ai</span>
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 animate-fade-in delay-200">
@@ -129,12 +175,19 @@ export default function Home() {
               <span>npm install -g whisper-ai</span>
               <CopyButton text="npm install -g whisper-ai" />
             </div>
-            <Link href="/docs" className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-6 py-3 rounded shadow mt-2 sm:mt-0">Read the Docs</Link>
+            <Link href="/docs" className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-6 py-3 rounded shadow mt-2 sm:mt-0 scale-105">Read the Docs</Link>
           </div>
           <div className="mt-8 animate-fade-in delay-300">
             <AnimatedTerminal />
           </div>
-          <div className="mt-4 text-sm text-gray-400 animate-fade-in delay-400">Available on <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" className="underline hover:text-indigo-300">npm</a> — <span className="font-mono">npx whisper-ai</span></div>
+          <div className="mt-4 text-sm text-gray-400 animate-fade-in delay-400">
+            Available on <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" className="underline hover:text-indigo-300">npm</a> <span className="font-mono">npx whisper-ai</span>
+            <span className="ml-4">
+              <a href="https://github.com/Alinxus/whisper-cli" target="_blank" className="underline hover:text-indigo-300">GitHub</a>
+              {' | '}
+              <a href="https://x.com/alameenpd" target="_blank" className="underline hover:text-indigo-300">Twitter</a>
+            </span>
+          </div>
         </div>
       </section>
 
@@ -236,8 +289,8 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <span className="text-xl font-bold text-white">Whisper</span>
             <a href="https://www.npmjs.com/package/whisper-ai" target="_blank" rel="noopener" className="bg-gray-800 px-3 py-1 rounded text-sm font-mono text-indigo-200 ml-2">npm</a>
-            <a href="https://github.com/your-org/whisper" target="_blank" rel="noopener" className="ml-2 text-gray-400 hover:text-indigo-300 underline">GitHub</a>
-            <a href="https://twitter.com/yourhandle" target="_blank" rel="noopener" className="ml-2 text-gray-400 hover:text-indigo-300 underline">Twitter</a>
+            <a href="https://github.com/Alinxus/whisper-cli" target="_blank" rel="noopener" className="ml-2 text-gray-400 hover:text-indigo-300 underline">GitHub</a>
+            <a href="https://twitter.com/alameenpd" target="_blank" rel="noopener" className="ml-2 text-gray-400 hover:text-indigo-300 underline">Twitter</a>
           </div>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link href="/auth/signup" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded shadow">Get Started Free</Link>

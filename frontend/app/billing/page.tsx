@@ -165,6 +165,27 @@ function PlanCard({ plan, isCurrentPlan, onUpgrade, isLoading }: PlanCardProps) 
   );
 }
 
+// Add AnimatedLines component for subtle animated SVG lines
+function AnimatedLines() {
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" aria-hidden="true">
+      <g className="animate-move-lines">
+        <polyline points="0,100 100,200 300,100 500,200 700,100" fill="none" stroke="#6366f1" strokeWidth="2" opacity="0.12">
+          <animate attributeName="points" values="0,100 100,200 300,100 500,200 700,100;0,120 100,180 300,120 500,180 700,120;0,100 100,200 300,100 500,200 700,100" dur="8s" repeatCount="indefinite" />
+        </polyline>
+        <polyline points="0,300 200,400 400,300 600,400 800,300" fill="none" stroke="#818cf8" strokeWidth="2" opacity="0.10">
+          <animate attributeName="points" values="0,300 200,400 400,300 600,400 800,300;0,320 200,380 400,320 600,380 800,320;0,300 200,400 400,300 600,400 800,300" dur="10s" repeatCount="indefinite" />
+        </polyline>
+      </g>
+      <style>{`
+        .animate-move-lines polyline {
+          filter: blur(0.5px);
+        }
+      `}</style>
+    </svg>
+  );
+}
+
 export default function BillingPage() {
   const [selectedInterval, setSelectedInterval] = useState<'month' | 'year'>('month');
   const queryClient = useQueryClient();
@@ -230,16 +251,13 @@ export default function BillingPage() {
     Math.min((subscription?.scansUsed || 0) / (subscription?.scansLimit || 1) * 100, 100);
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Billing & Usage</h1>
-            <p className="text-gray-600">Manage your subscription and monitor usage</p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#312e81] flex relative">
+      <AnimatedLines />
+      <DashboardLayout>
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">Billing & Plans</h1>
+          <p className="text-lg text-indigo-100">Manage your subscription and usage</p>
         </div>
-
         {/* Current Plan Overview */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
@@ -411,7 +429,7 @@ export default function BillingPage() {
             </div>
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </div>
   );
 }
