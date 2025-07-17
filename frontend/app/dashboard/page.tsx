@@ -15,7 +15,7 @@ const navLinks = [
   { href: "/profile", label: "Profile" },
 ];
 
-function StatCard({ title, value, icon: Icon, gradient, description }) {
+function StatCard({ title, value, icon: Icon, gradient, description } : any) {
   return (
     <div className={`rounded-xl p-6 border-2 ${gradient} shadow-lg flex flex-col items-start min-h-[120px]`}> 
       <div className="flex items-center mb-2">
@@ -28,7 +28,7 @@ function StatCard({ title, value, icon: Icon, gradient, description }) {
   );
 }
 
-function SecurityScore({ score, trend }) {
+function SecurityScore({ score, trend } : any) {
   return (
     <div className="bg-gradient-to-br from-indigo-700 to-indigo-900 rounded-2xl p-8 flex flex-col items-center shadow-xl border-2 border-indigo-800">
       <div className="relative mb-4">
@@ -47,12 +47,12 @@ function SecurityScore({ score, trend }) {
   );
 }
 
-function RecentActivity({ activities }) {
+function RecentActivity({ activities } : any) {
   return (
     <div className="bg-gradient-to-br from-indigo-900/80 to-indigo-800/60 rounded-2xl p-6 shadow-lg border-2 border-indigo-800">
       <div className="text-lg font-semibold text-white mb-4">Recent Activity</div>
       <ul className="space-y-4">
-        {activities.map((a) => (
+        {activities.map((a : any) => (
           <li key={a.id} className="flex items-center gap-3">
             {a.type === 'scan' && <BugAntIcon className="h-5 w-5 text-indigo-300" />}
             {a.type === 'fix' && <SparklesIcon className="h-5 w-5 text-green-300" />}
