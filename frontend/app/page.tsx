@@ -163,8 +163,7 @@ export default function Home() {
       <section className="pt-24 pb-16 px-4 md:px-0 flex flex-col items-center text-center relative z-10">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight animate-fade-in drop-shadow-lg">
-            Whisper Security CLI
-            <span className="block text-indigo-400">Fast, Automated Code Security for Developers</span>
+            <span className="block text-indigo-400">"Whisper CLI: Code Smarter. Code Safer"</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-200 mb-8 animate-fade-in delay-100 drop-shadow">
             Find and fix vulnerabilities, misconfigurations, and code risks in seconds.<br />
