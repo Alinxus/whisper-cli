@@ -54,6 +54,8 @@ const severityConfig = {
   },
 };
 
+type Severity = keyof typeof severityConfig;
+
 interface FindingCardProps {
   finding: any;
   isExpanded: boolean;
@@ -61,7 +63,7 @@ interface FindingCardProps {
 }
 
 function FindingCard({ finding, isExpanded, onToggle }: FindingCardProps) {
-  const severityInfo = severityConfig[finding.severity];
+  const severityInfo = severityConfig[finding.severity as Severity];
   const SeverityIcon = severityInfo.icon;
 
   return (
@@ -134,7 +136,7 @@ function FindingCard({ finding, isExpanded, onToggle }: FindingCardProps) {
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-2">References</h4>
                 <ul className="text-sm text-blue-600 space-y-1">
-                  {finding.references.map((ref, index) => (
+                  {finding.references.map((ref: string, index: number) => (
                     <li key={index}>
                       <a href={ref} target="_blank" rel="noopener noreferrer" className="hover:underline">
                         {ref}

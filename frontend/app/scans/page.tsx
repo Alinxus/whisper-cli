@@ -169,7 +169,7 @@ export default function ScansPage() {
 
   const { data: scansData = [], isLoading } = useQuery({
     queryKey: ['scans'],
-    queryFn: scansApi.getScans,
+    queryFn: () => scansApi.getScans(),
     refetchInterval: 5000, // Refresh every 5 seconds for running scans
   });
 
