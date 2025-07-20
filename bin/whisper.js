@@ -15,9 +15,10 @@ import { readFileSync } from 'fs';
 
 // Import Whisper CLI modules
 import { WhisperCLI } from '../lib/index.js';
-import { AuthManager } from '../lib/auth/auth.js';
+// Remove AuthManager, Analytics, and backend-dependent imports
+// import { AuthManager } from '../lib/auth/auth.js';
+// import { Analytics } from '../lib/analytics/analytics.js';
 import { ConfigManager } from '../lib/config/config.js';
-import { Analytics } from '../lib/analytics/analytics.js';
 
 // Load environment variables from .env if present
 import dotenv from 'dotenv';
@@ -61,26 +62,11 @@ program
 
     await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate loading
     loading.succeed('Ready to roll!');
-    console.log('🌐 Connecting to Whisper CLI...');
+    console.log('🌐 Whisper CLI ready (standalone mode)');
     
-    // Initialize Whisper CLI
+    // Initialize Whisper CLI (no auth)
     const whisper = new WhisperCLI(options);
     await whisper.initialize();
-    
-    // Check for authentication (skip for auth commands)
-    const args = process.argv.slice(2);
-    const isAuthCommand = args.includes('auth');
-    
-    if (!isAuthCommand) {
-      const isAuthenticated = await whisper.auth.check();
-      if (!isAuthenticated) {
-        console.error(chalk.red('❌ Not authenticated. Please run `whisper auth login` and try again.'));
-        process.exit(1);
-      }
-      
-      // Check for rate limiting
-      await whisper.checkRateLimits();
-    }
     
     // Set global whisper instance
     global.whisper = whisper;
@@ -123,52 +109,6 @@ program
       process.exit(1);
     }
   });
-
-// Auth commands
-program
-  .command('auth')
-  .description('Authentication and account management')
-  .addCommand(
-    new Command('login')
-      .description('Login to your Whisper account')
-      .option('--token <token>', 'API token for authentication')
-      .option('--email <email>', 'Email for authentication')
-      .action(async (options) => {
-        try {
-          const auth = new AuthManager();
-          await auth.login(options);
-        } catch (error) {
-          console.error(chalk.red('Login failed:'), error.message);
-          process.exit(1);
-        }
-      })
-  )
-  .addCommand(
-    new Command('logout')
-      .description('Logout from your Whisper account')
-      .action(async () => {
-        try {
-          const auth = new AuthManager();
-          await auth.logout();
-        } catch (error) {
-          console.error(chalk.red('Logout failed:'), error.message);
-          process.exit(1);
-        }
-      })
-  )
-  .addCommand(
-    new Command('status')
-      .description('Check authentication status')
-      .action(async () => {
-        try {
-          const auth = new AuthManager();
-          await auth.status();
-        } catch (error) {
-          console.error(chalk.red('Status check failed:'), error.message);
-          process.exit(1);
-        }
-      })
-  );
 
 // Team commands
 program
@@ -311,25 +251,6 @@ program
           await config.list();
         } catch (error) {
           console.error(chalk.red('Config list failed:'), error.message);
-          process.exit(1);
-        }
-      })
-  );
-
-// Analytics commands
-program
-  .command('analytics')
-  .description('Usage analytics and insights')
-  .addCommand(
-    new Command('usage')
-      .description('Show usage statistics')
-      .option('--period <period>', 'Time period (day, week, month)', 'week')
-      .action(async (options) => {
-        try {
-          const analytics = new Analytics();
-          await analytics.usage(options);
-        } catch (error) {
-          console.error(chalk.red('Analytics failed:'), error.message);
           process.exit(1);
         }
       })
