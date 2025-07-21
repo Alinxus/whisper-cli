@@ -278,17 +278,26 @@ program
 // Fix command
 program
   .command('fix')
-  .description('🔧 Get AI-powered fix suggestions (non-destructive)')
+  .description('🔧 AI-powered security fixes with automatic application')
   .argument('[path]', 'Path to analyze for fixes (default: current directory)', '.')
+  .option('--history <scanId>', 'Apply fixes from a specific scan in history')
   .option('--interactive', 'Interactive mode for applying fixes', false)
   .option('--severity <level>', 'Minimum severity level (low, medium, high, critical)', 'medium')
-  .option('--model <model>', 'AI model to use', 'gemini')
+  .option('--model <model>', 'AI model to use (gemini-2.0-flash-exp, gpt-4o, claude)', 'gemini-2.0-flash-exp')
+  .option('--dry-run', 'Show what would be fixed without applying changes', false)
   .action(async (path, options) => {
     try {
       const whisper = global.whisper;
-      await whisper.suggestFixes(path, options);
+      
+      if (options.history) {
+        await whisper.fixFromHistory(options.history, options);
+      } else if (options.dryRun) {
+        await whisper.suggestFixes(path, options);
+      } else {
+        await whisper.fixSecurityIssues({ ...options, path });
+      }
     } catch (error) {
-      console.error(chalk.red('Fix suggestions failed:'), error.message);
+      console.error(chalk.red('Fix operation failed:'), error.message);
       process.exit(1);
     }
   });

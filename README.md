@@ -1,14 +1,38 @@
-# Whisper CLI (Backendless, AI-Powered)
+# 🛡️ Whisper CLI - AI Security Intelligence
 
-Whisper CLI is an open-source, AI-powered code security and code analysis tool for developers, teams, and security analysts. It works entirely standalone—no backend, no authentication, no analytics, and no rate limits. All you need are your own AI API keys!
+[![npm version](https://badge.fury.io/js/whisper-cli-ai.svg)](https://badge.fury.io/js/whisper-cli-ai)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 
-## ✨ Features
-- **AI-powered code scanning** for vulnerabilities and improvements
-- **Explain code** with advanced AI models
-- **Suggest and auto-fix issues** using AI
-- **Pre-commit security guard** for Git
-- **Works with OpenAI, Gemini, and Anthropic APIs**
-- **No backend, no login, no tracking**
+**The most advanced AI-powered security scanner for developers.** Whisper CLI combines static analysis with cutting-edge AI models to deliver comprehensive security insights, automatic fixes, and intelligent recommendations—all running locally with complete privacy.
+
+🚀 **New in v2.0**: Interactive post-scan workflows, comprehensive markdown reports, scan history management, and AI-powered automatic fixing!
+
+## ✨ Key Features
+
+### 🔍 **Intelligent Security Scanning**
+- **Dual Analysis**: Static security rules + AI-powered deep analysis
+- **Latest AI Models**: Gemini 2.0 Flash, GPT-4o, Claude 3.5 Sonnet
+- **Comprehensive Reports**: Executive summaries + detailed markdown reports
+- **Risk Assessment**: Automatic severity classification and risk scoring
+
+### 🤖 **AI-Powered Automatic Fixing**
+- **One-Click Fixes**: AI analyzes and fixes security issues automatically
+- **Smart Backups**: Automatic backup creation before applying fixes
+- **Batch Processing**: Fix multiple files simultaneously
+- **Context Preservation**: Maintains code functionality while fixing security issues
+
+### 📊 **Advanced History Management**
+- **Persistent Storage**: All scans saved locally in `~/.whisper/`
+- **Rich History**: View past scans with dates, severity, and fix status
+- **Historical Fixes**: Apply AI fixes from any previous scan
+- **Context Recovery**: Full scan results and metadata preserved
+
+### 🎯 **Interactive Workflows**
+- **Post-Scan Options**: Choose to fix, save, or exit after each scan
+- **Smart Recommendations**: Tailored advice based on your codebase
+- **Priority Actions**: Clear guidance on what to fix first
+- **Progress Tracking**: Real-time feedback during AI operations
 
 ---
 
@@ -23,7 +47,7 @@ npm install -g whisper-cli-ai
 ### 2. Or clone from GitHub (for open source contributors)
 
 ```sh
-git clone https://github.com/yourusername/whisper.git
+git clone https://github.com/Alinxus/whisper-cli.git
 cd whisper
 npm install
 npm run build

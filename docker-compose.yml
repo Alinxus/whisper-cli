@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # Development environment with hot reload
+  whisper-dev:
+    build:
+      context: .
+      target: builder
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - whisper-cache:/app/.whisper-cache
+    environment:
+      - NODE_ENV=development
+      - WHISPER_DEBUG=true
+    working_dir: /app
+    command: ["node", "bin/whisper", "--help"]
+    profiles: ["dev"]
+
+  # Production Node.js runtime
+  whisper-node:
+    build:
+      context: .
+      target: runtime
+    volumes:
+      - whisper-data:/app/data
+      - ./workspace:/workspace
+    environment:
+      - NODE_ENV=production
+      - WHISPER_DATA_DIR=/app/data
+    working_dir: /workspace
+    profiles: ["node", "production"]
+
+  # Python-compatible runtime
+  whisper-python:
+    build:
+      context: .
+      target: python-runtime
+    volumes:
+      - whisper-data:/app/data
+      - ./workspace:/workspace
+    environment:
+      - PYTHONPATH=/opt/whisper-python
+      - WHISPER_DATA_DIR=/app/data
+    working_dir: /workspace
+    profiles: ["python", "production"]
+
+  # Web UI (future enhancement)
+  whisper-web:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "3000:3000"
+    volumes:
+      - whisper-data:/app/data
+      - ./workspace:/workspace
+    environment:
+      - NODE_ENV=production
+      - WHISPER_WEB_MODE=true
+      - WHISPER_DATA_DIR=/app/data
+    command: ["node", "lib/server/web.js"]
+    profiles: ["web"]
+
+volumes:
+  whisper-data:
+    driver: local
+  whisper-cache:
+    driver: local
+
+# Usage examples:
+# Development: docker-compose --profile dev up whisper-dev
+# Node.js Production: docker-compose --profile node up whisper-node
+# Python Production: docker-compose --profile python up whisper-python
+# Web UI: docker-compose --profile web up whisper-web
